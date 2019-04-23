@@ -1,1 +1,1 @@
-# Mutation
+# Mutation: hopefully creating a genetic algorithm game
