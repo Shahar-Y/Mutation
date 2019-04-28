@@ -1,17 +1,29 @@
+from enum import Enum, auto
+
+
+class PixelType(Enum):
+    Pixel = auto()
+    Cell = auto()
+    Food = auto()
+    Rock = auto()
+    Antibiotics = auto()
+
 
 class Pixel:
     def __init__(self, width, length):
         self.length = length
         self.width = width
+        self.x = 0
+        self.y = 0
+        self.type = PixelType.Pixel
 
-    def incSize(self):
+    def inc_size(self):
         self.length += 1
         self.width += 1
 
-    def printCell(self):
-        print("pixel length: " + str(p1.length) + ", width: " + str(p1.width))
-
-p1 = Pixel(5, 10)
-p1.printCell()
-p1.incSize()
-p1.printCell()
+    def print_cell(self):
+        print("*******************************")
+        print("pixel type: " + str(self.type))
+        print("pixel length: " + str(self.length) + ", width: " + str(self.width))
+        print("pixel location: " + str(self.x) + "," + str(self.y))
+        print("*******************************")
