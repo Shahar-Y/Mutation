@@ -1,7 +1,8 @@
 from enum import Enum, auto
 
 
-class PixelType(Enum):
+class TileType(Enum):
+    Grass = auto()
     Pixel = auto()
     Cell = auto()
     Food = auto()
@@ -10,10 +11,10 @@ class PixelType(Enum):
 
 
 class Step(Enum):
-    RIGHT = [1, 0]
-    LEFT = [-1, 0]
-    UP = [0, 1]
-    DOWN = [0, -1]
+    RIGHT = "RIGHT"
+    LEFT = "LEFT"
+    UP = "UP"
+    DOWN = "DOWN"
 
 
 class CFeatures:

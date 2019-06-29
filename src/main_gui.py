@@ -1,6 +1,8 @@
 # Source: https://codereview.stackexchange.com/questions/139102/beginner-grid-based-game-movement-engine
 import random as random
 import pygame as pygame
+from enums import TileType
+import time
 
 pygame.init()                                 # start up dat pygame
 clock = pygame.time.Clock()                   # for framerate or something? still not very sure
@@ -18,13 +20,13 @@ GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 
-
 # The main class for stationary things that inhabit the grid ... grass, trees, rocks and stuff.
 class MapTile(object):
-    def __init__(self, Name, Column, Row):
-        self.Name = Name
-        self.Column = Column
-        self.Row = Row
+    def __init__(self, name, column, row, type):
+        self.type = type
+        self.Name = name
+        self.Column = column
+        self.Row = row
 
 # Characters can move around and do cool stuff
 class Character(object):
@@ -40,39 +42,47 @@ class Character(object):
         if Direction == "UP":
             if self.Row > 0:                #If within boundaries of grid
                 if self.CollisionCheck("UP") == False:       #And nothing in the way
-                   self.Row -= 1            #Go ahead and move
+                    Map.Grid[self.Column][self.Row][0] = MapTile("Grass", self.Column, self.Row, TileType.Grass)
+                    self.Row -= 1
+                    Map.Grid[self.Column][self.Row][0] = MapTile("Hero", self.Column, self.Row, TileType.Cell)
 
         elif Direction == "LEFT":
             if self.Column > 0:
                 if self.CollisionCheck("LEFT") == False:
+                    Map.Grid[self.Column][self.Row][0] = MapTile("Grass", self.Column, self.Row, TileType.Grass)
                     self.Column -= 1
+                    Map.Grid[self.Column][self.Row][0] = MapTile("Hero", self.Column, self.Row, TileType.Cell)
+
 
         elif Direction == "RIGHT":
             if self.Column < MapSize-1:
                 if self.CollisionCheck("RIGHT") == False:
-                         self.Column += 1
+                    Map.Grid[self.Column][self.Row][0] = MapTile("Grass", self.Column, self.Row, TileType.Grass)
+                    self.Column += 1
+                    Map.Grid[self.Column][self.Row][0] = MapTile("Hero", self.Column, self.Row, TileType.Cell)
 
         elif Direction == "DOWN":
             if self.Row < MapSize-1:
                 if self.CollisionCheck("DOWN") == False:
+                    Map.Grid[self.Column][self.Row][0] = MapTile("Grass", self.Column, self.Row, TileType.Grass)
                     self.Row += 1
-
-        Map.update()
+                    Map.Grid[self.Column][self.Row][0] = MapTile("Hero", self.Column, self.Row, TileType.Cell)
 
     # Checks if anything is on top of the grass in the direction that the character wants to move.
     # Used in the move function
     def CollisionCheck(self, Direction):
+        print(Map.Grid[self.Column][self.Row][0].Name)
         if Direction == "UP":
-            if len(Map.Grid[self.Column][(self.Row)-1]) > 1:
+            if (Map.Grid[self.Column][(self.Row)-1][0]).Name != "Grass":
                 return True
         elif Direction == "LEFT":
-            if len(Map.Grid[self.Column-1][(self.Row)]) > 1:
+            if (Map.Grid[self.Column-1][(self.Row)][0]).Name != "Grass":
                 return True
         elif Direction == "RIGHT":
-            if len(Map.Grid[self.Column+1][(self.Row)]) > 1:
+            if (Map.Grid[self.Column+1][(self.Row)][0]).Name != "Grass":
                 return True
         elif Direction == "DOWN":
-            if len(Map.Grid[self.Column][(self.Row)+1]) > 1:
+            if (Map.Grid[self.Column][(self.Row)+1][0]).Name != "Grass":
                 return True
         return False
 
@@ -92,50 +102,32 @@ class Map(object):
 
     for Row in range(MapSize):     # Filling grid with grass
         for Column in range(MapSize):
-            TempTile = MapTile("Grass", Column, Row)
+            TempTile = MapTile("Grass", Column, Row, TileType.Grass)
             Grid[Column][Row].append(TempTile)
 
-    for Row in range(MapSize):     # Putting some rocks near the top
-        for Column in range(MapSize):
-            TempTile = MapTile("Rock", Column, Row)
-            if Row == 1:
-                Grid[Column][Row].append(TempTile)
-
-    for i in range(10):          # Placing Random trees
-        RandomRow = random.randint(0, MapSize - 1)
-
-    # Dropping the hero in
-        RandomRow = random.randint(0, MapSize - 1)
-        RandomColumn = random.randint(0, MapSize - 1)
-        TempTile = MapTile("Tree", RandomColumn, RandomRow)
-        Grid[RandomColumn][RandomRow].append(TempTile)
     RandomColumn = random.randint(0, MapSize - 1)
-
+    RandomRow = random.randint(0, MapSize - 1)
     Hero = Character("Hero", 10, RandomColumn, RandomRow)
-    def update(self):        #Very important function
-        #This function goes through the entire grid
-        #And checks to see if any object's internal coordinates
-        #Disagree with its current position in the grid
-        #If they do, it removes the objects and places it
-        #on the grid according to its internal coordinates
-
-        for Column in range(MapSize):
-            for Row in range(MapSize):
-                for i in range(len(Map.Grid[Column][Row])):
-                    if Map.Grid[Column][Row][i].Column != Column:
-                        Map.Grid[Column][Row].remove(Map.Grid[Column][Row][i])
-                    elif Map.Grid[Column][Row][i].Name == "Hero":
-                        Map.Grid[Column][Row].remove(Map.Grid[Column][Row][i])
-        Map.Grid[int(Map.Hero.Column)][int(Map.Hero.Row)].append(Map.Hero)
-
-
-
+    Grid[RandomColumn][RandomRow][0] = MapTile("Hero", RandomColumn, RandomRow, TileType.Cell)
 
 Map = Map()
+
+def intToSide(num):
+    if(num) % 4 == 0:
+        return "LEFT"
+    if(num) % 4 == 1:
+        return "RIGHT"
+    if(num) % 4 == 2:
+        return "UP"
+    if(num) % 4 == 3:
+        return "DOWN"
 
 def run_game():
     Done = False
     while not Done:     # Main pygame loop
+        time.sleep(1)
+        num = random.randint(0, 3)
+        Map.Hero.Move(intToSide(num))
 
         for event in pygame.event.get():         # catching events
             if event.type == pygame.QUIT:
@@ -164,12 +156,11 @@ def run_game():
 
         for Row in range(MapSize):           # Drawing grid
             for Column in range(MapSize):
-                for i in range(0, len(Map.Grid[Column][Row])):
+                if Map.Grid[Column][Row][0].type == TileType.Grass:
                     Color = WHITE
-                    if len(Map.Grid[Column][Row]) == 2:
-                        Color = RED
-                    if Map.Grid[Column][Row][i].Name == "Hero":
-                        Color = GREEN
+                if Map.Grid[Column][Row][0].Name == "Hero":
+                    # print(Column + " " + Row)
+                    Color = BLUE
 
 
                 pygame.draw.rect(Screen, Color, [(TileMargin + TileWidth) * Column + TileMargin,
@@ -180,9 +171,8 @@ def run_game():
         clock.tick(60)      #Limit to 60 fps or something
 
         pygame.display.flip()     #Honestly not sure what this does, but it breaks if I remove it
-        Map.update()
-
 
 run_game()
 
 pygame.quit()
+
