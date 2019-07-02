@@ -46,6 +46,7 @@ class Character(object):
         new_row = self.Row + row_advance
         if Map.Grid[new_col][new_row].Type == TileType.Food:
             self.HP += 10
+            Map.NumFood -= 1
             if self.HP >= 30:
                 print("reproducing!")
                 self.HP = 0
@@ -114,6 +115,7 @@ class Map(object):
     global MapSize
 
     index = 1
+    NumFood = 0
     Grid: List[List[MapTile]] = []*(MapSize*MapSize)
 
     empty_tile = MapTile("", 0, 0, TileType.Pixel)
@@ -135,10 +137,14 @@ class Map(object):
 
     def spread_food(self, num):
         for i in range(num):
-            rand_col = random.randint(0, MapSize - 1)
-            rand_row = random.randint(0, MapSize - 1)
-            temp_tile = MapTile("Food", rand_col, rand_row, TileType.Food)
-            self.Grid[rand_col][rand_row] = temp_tile
+            while True:
+                rand_col = random.randint(0, MapSize - 1)
+                rand_row = random.randint(0, MapSize - 1)
+                if self.Grid[rand_col][rand_row].Type == TileType.Grass:
+                    temp_tile = MapTile("Food", rand_col, rand_row, TileType.Food)
+                    self.Grid[rand_col][rand_row] = temp_tile
+                    self.NumFood += 1
+                    break
 
 
 Map = Map()
@@ -167,6 +173,9 @@ def run_game():
         for i in range(len(Map.Cells)):
             num = random.randint(0, 3)
             Map.Cells[i].move(int_to_direction(num))
+
+        if Map.NumFood <= 20:
+            Map.spread_food(20)
 
         for event in pygame.event.get():         # catching events
             if event.type == pygame.QUIT:
