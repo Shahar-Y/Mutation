@@ -14,6 +14,9 @@ TileWidth = 20                                # pixel sizes for grid squares
 TileHeight = 20
 TileMargin = 4
 
+InitHunger = 50
+FoodWorth = 10
+
 BLACK = (0, 0, 0)                             # some color definitions
 WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
@@ -37,18 +40,26 @@ class Character(object):
         self.HP = hp
         self.Column = column
         self.Row = row
+        self.hunger = InitHunger
 
     def handle_step(self, col_advance, row_advance):
         new_col = self.Column + col_advance
         new_row = self.Row + row_advance
         if Map.Grid[new_col][new_row].Type == TileType.Food:
             self.HP += 10
+            if( self.hunger - FoodWorth >= 0):
+                self.hunger = self.hunger - FoodWorth
+            else:
+                self.hunger = 0
             print("new HP: {}".format(self.HP))
         if Map.Grid[new_col][new_row].Type == TileType.Grass or Map.Grid[new_col][new_row].Type == TileType.Food:
             Map.Grid[self.Column][self.Row] = MapTile("Grass", self.Column, self.Row, TileType.Grass)
             self.Row += row_advance
             self.Column += col_advance
             Map.Grid[self.Column][self.Row] = MapTile(self.Name, self.Column, self.Row, TileType.Cell)
+        self.hunger += 1
+        if(self.hunger) >= 100:
+            self.die()
 
     # This function is how a character moves around in a certain direction
     def move(self, direction):
@@ -85,6 +96,10 @@ class Character(object):
             if (Map.Grid[self.Column][self.Row+1]).Type == TileType.Rock:
                 return True
         return False
+
+    def die(self):
+        return
+
 
 
 # The main class; where the action happens
