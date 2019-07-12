@@ -22,6 +22,9 @@ WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
+BLUE3 = (0, 50, 250)
+BLUE2 = (0, 150, 250)
+BLUE1 = (0, 220, 250)
 
 
 # The main class for stationary things that inhabit the grid ... grass, trees, rocks and stuff.
@@ -51,7 +54,13 @@ class Character(object):
                 self.hunger = self.hunger - FoodWorth
             else:
                 self.hunger = 0
+            Map.NumFood -= 1
+            if self.HP >= 30:
+                print("reproducing!")
+                self.HP = 0
+                self.reproduce()
             print("new HP: {}".format(self.HP))
+
         if Map.Grid[new_col][new_row].Type == TileType.Grass or Map.Grid[new_col][new_row].Type == TileType.Food:
             Map.Grid[self.Column][self.Row] = MapTile("Grass", self.Column, self.Row, TileType.Grass)
             self.Row += row_advance
@@ -100,12 +109,27 @@ class Character(object):
     def die(self):
         return
 
+    def reproduce(self):
+        col, row = self.adjasent_free_space()
+        new_cell = Character("Hero", 0, col, row)
+        Map.Grid[col][row] = MapTile("cell" + str(Map.index), col, row, TileType.Cell)
+        Map.index += 1
+        Map.Cells.append(new_cell)
+
+    def adjasent_free_space(self):
+        for i in [-1, 0, 1]:
+            for j in [-1, 0, 1]:
+                if not(i == j and i == 0):
+                    if Map.Grid[self.Column + i][self.Row + j].Type == TileType.Grass:
+                        return self.Column + i, self.Row + j
 
 
 # The main class; where the action happens
 class Map(object):
     global MapSize
 
+    index = 1
+    NumFood = 0
     Grid: List[List[MapTile]] = []*(MapSize*MapSize)
 
     empty_tile = MapTile("", 0, 0, TileType.Pixel)
@@ -121,19 +145,24 @@ class Map(object):
 
     RandomColumn = random.randint(0, MapSize - 1)
     RandomRow = random.randint(0, MapSize - 1)
-    Hero = Character("Hero", 10, RandomColumn, RandomRow)
+    Hero = Character("Hero", 0, RandomColumn, RandomRow)
+    Cells: List[Character] = [Hero]
     Grid[RandomColumn][RandomRow] = MapTile("Hero", RandomColumn, RandomRow, TileType.Cell)
 
     def spread_food(self, num):
         for i in range(num):
-            rand_col = random.randint(0, MapSize - 1)
-            rand_row = random.randint(0, MapSize - 1)
-            temp_tile = MapTile("Food", rand_col, rand_row, TileType.Food)
-            self.Grid[rand_col][rand_row] = temp_tile
+            while True:
+                rand_col = random.randint(0, MapSize - 1)
+                rand_row = random.randint(0, MapSize - 1)
+                if self.Grid[rand_col][rand_row].Type == TileType.Grass:
+                    temp_tile = MapTile("Food", rand_col, rand_row, TileType.Food)
+                    self.Grid[rand_col][rand_row] = temp_tile
+                    self.NumFood += 1
+                    break
 
 
 Map = Map()
-Map.spread_food(60)
+Map.spread_food(150)
 
 
 def int_to_direction(num):
@@ -146,13 +175,21 @@ def int_to_direction(num):
     if num % 4 == 3:
         return "DOWN"
 
+def get_cells_by_location(col, row):
+    for i in range(len(Map.Cells)):
+        if Map.Cells[i].Column == col and Map.Cells[i].Row == row:
+            return i
 
 def run_game():
     done = False
     while not done:     # Main pygame loop
         time.sleep(0.1)
-        num = random.randint(0, 3)
-        Map.Hero.move(int_to_direction(num))
+        for i in range(len(Map.Cells)):
+            num = random.randint(0, 3)
+            Map.Cells[i].move(int_to_direction(num))
+
+        if Map.NumFood <= 20:
+            Map.spread_food(20)
 
         for event in pygame.event.get():         # catching events
             if event.type == pygame.QUIT:
@@ -182,7 +219,13 @@ def run_game():
                 if Map.Grid[Column][Row].Type == TileType.Grass:
                     color = WHITE
                 if Map.Grid[Column][Row].Type == TileType.Cell:
-                    color = BLUE
+                    index = get_cells_by_location(Column, Row)
+                    if Map.Cells[index].HP <= 0:
+                        color = BLUE1
+                    elif Map.Cells[index].HP <= 10:
+                        color = BLUE2
+                    elif Map.Cells[index].HP <= 20:
+                        color = BLUE3
                 if Map.Grid[Column][Row].Type == TileType.Food:
                     color = RED
 
