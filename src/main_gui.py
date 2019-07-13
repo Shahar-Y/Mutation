@@ -6,17 +6,25 @@ import time
 
 pygame.init()                                 # start up dat pygame
 clock = pygame.time.Clock()                   # for frame-rate or something? still not very sure
-Screen = pygame.display.set_mode([1000, 1000])  # making the window
 Done = False                                  # variable to keep track if window is open
 MapSize = 25                                  # how many tiles in either direction of grid
 
 TileWidth = 20                                # pixel sizes for grid squares
-TileHeight = 20
+TileHeight = TileWidth
 TileMargin = 4
+
+FoodToSpread = int(MapSize*MapSize / 9)
+
+WindowSize = (TileWidth + TileMargin) * MapSize
+Screen = pygame.display.set_mode([WindowSize, WindowSize])  # making the window
+
+InitHunger = 75
+FoodWorth = 10
 
 BLACK = (0, 0, 0)                             # some color definitions
 WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
+GRASS = (255, 255, 255)
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 BLUE3 = (0, 50, 250)
@@ -40,12 +48,17 @@ class Character(object):
         self.HP = hp
         self.Column = column
         self.Row = row
+        self.hunger = InitHunger
 
     def handle_step(self, col_advance, row_advance):
         new_col = self.Column + col_advance
         new_row = self.Row + row_advance
         if Map.Grid[new_col][new_row].Type == TileType.Food:
             self.HP += 10
+            if( self.hunger - FoodWorth >= 0):
+                self.hunger = self.hunger - FoodWorth
+            else:
+                self.hunger = 0
             Map.NumFood -= 1
             if self.HP >= 30:
                 print("reproducing!")
@@ -58,25 +71,30 @@ class Character(object):
             self.Row += row_advance
             self.Column += col_advance
             Map.Grid[self.Column][self.Row] = MapTile(self.Name, self.Column, self.Row, TileType.Cell)
+        self.hunger += 1
+        if(self.hunger) >= 100:
+            return True
+        return False
 
     # This function is how a character moves around in a certain direction
     def move(self, direction):
-
+        isDead = False
         if direction == "UP":
             if self.Row > 0 and not(self.collides("UP")):
-                self.handle_step(0, -1)
+                isDead = self.handle_step(0, -1)
 
         elif direction == "LEFT":
             if self.Column > 0 and not(self.collides("LEFT")):
-                self.handle_step(-1, 0)
+                isDead = self.handle_step(-1, 0)
 
         elif direction == "RIGHT":
             if self.Column < MapSize-1 and not(self.collides("RIGHT")):
-                self.handle_step(1, 0)
+                isDead = self.handle_step(1, 0)
 
         elif direction == "DOWN":
             if self.Row < MapSize-1 and not(self.collides("DOWN")):
-                self.handle_step(0, 1)
+                isDead = self.handle_step(0, 1)
+        return isDead
 
     # Checks if anything is on top of the grass in the direction that the character wants to move.
     # Used in the move function
@@ -94,6 +112,11 @@ class Character(object):
             if (Map.Grid[self.Column][self.Row+1]).Type == TileType.Rock:
                 return True
         return False
+
+    def die(self):
+        Map.Grid[self.Column][self.Row] = MapTile("Grass", self.Column, self.Row, TileType.Grass)
+        Map.Cells.remove(self)
+        del self
 
     def reproduce(self):
         col, row = self.adjasent_free_space()
@@ -148,7 +171,7 @@ class Map(object):
 
 
 Map = Map()
-Map.spread_food(150)
+Map.spread_food(FoodToSpread * 2)
 
 
 def int_to_direction(num):
@@ -170,12 +193,18 @@ def run_game():
     done = False
     while not done:     # Main pygame loop
         time.sleep(0.1)
+        deadPool : List[Character] = []
         for i in range(len(Map.Cells)):
             num = random.randint(0, 3)
-            Map.Cells[i].move(int_to_direction(num))
+            isDead = Map.Cells[i].move(int_to_direction(num))
+            if(isDead):
+                deadPool.append(Map.Cells[i])
 
-        if Map.NumFood <= 20:
-            Map.spread_food(20)
+        for cell in deadPool:
+            cell.die()
+
+        if Map.NumFood <= FoodToSpread:
+            Map.spread_food(FoodToSpread)
 
         for event in pygame.event.get():         # catching events
             if event.type == pygame.QUIT:
@@ -203,7 +232,7 @@ def run_game():
         for Row in range(MapSize):           # Drawing grid
             for Column in range(MapSize):
                 if Map.Grid[Column][Row].Type == TileType.Grass:
-                    color = WHITE
+                    color = GRASS
                 if Map.Grid[Column][Row].Type == TileType.Cell:
                     index = get_cells_by_location(Column, Row)
                     if Map.Cells[index].HP <= 0:
