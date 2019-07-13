@@ -35,16 +35,14 @@ def run_game():
         dead_pool: List[Character] = []
         for i in range(len(BOARD.Cells)):
             num = random.randint(0, 3)
-            is_dead = BOARD.Cells[i].move(int_to_direction(num))
+            is_dead = BOARD.Cells[i].choose_direction()
             if is_dead:
                 dead_pool.append(BOARD.Cells[i])
 
         for cell in dead_pool:
             cell.die()
 
-        print('CHECKING: ' + str(BOARD.num_food) + ', ' + str(C.FOOD_DROPPED))
         if BOARD.num_food <= C.FOOD_DROPPED:
-            print('SPREADING FOOD' + str(BOARD.num_food) + ', ' + str(C.FOOD_DROPPED))
             BOARD.spread_food(C.FOOD_DROPPED)
 
         for event in pygame.event.get():         # catching events
@@ -86,7 +84,7 @@ def run_game():
                     elif BOARD.Cells[index].health <= 2*C.REPRO_HEALTH/3:
                         color = C.BLUE3
                 if BOARD.Grid[col][row].type == TileType.Food:
-                    color = C.RED
+                    color = C.FOOD_COLOR
 
                 pygame.draw.rect(SCREEN, color, [(C.TILE_MARGIN + C.TILE_WIDTH) * col + C.TILE_MARGIN,
                                                  (C.TILE_MARGIN + C.TILE_HEIGHT) * row + C.TILE_MARGIN,
