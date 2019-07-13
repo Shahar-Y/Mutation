@@ -3,7 +3,6 @@ import random
 from enums import TileType
 import constants as C
 from map_tile import MapTile
-
 # Characters can move around and do cool stuff
 class Character(object):
     def __init__(self, name, hp, col, row):
@@ -16,23 +15,23 @@ class Character(object):
     def handle_step(self, col_advance, row_advance):
         new_col = self.col + col_advance
         new_row = self.row + row_advance
-        curr_tile = Map.Grid[new_col][new_row]
+        curr_tile = BOARD.Grid[new_col][new_row]
         if curr_tile.type == TileType.Food:
             self.health += 10
             if self.hunger - C.FOOD_WORTH >= 0:
                 self.hunger = self.hunger - C.FOOD_WORTH
             else:
                 self.hunger = 0
-            Map.num_food -= 1
+            BOARD.num_food -= 1
             if self.health >= C.REPRO_HEALTH:
                 self.health = 0
                 self.reproduce()
 
         if curr_tile.type == TileType.Grass or curr_tile.type == TileType.Food:
-            Map.Grid[self.col][self.row] = MapTile("Grass", self.col, self.row, TileType.Grass)
+            BOARD.Grid[self.col][self.row] = MapTile("Grass", self.col, self.row, TileType.Grass)
             self.col = new_col
             self.row = new_row
-            Map.Grid[new_col][new_row] = MapTile(self.name, new_col, new_row, TileType.Cell)
+            BOARD.Grid[new_col][new_row] = MapTile(self.name, new_col, new_row, TileType.Cell)
         self.hunger += 1
         if(self.hunger) >= 100:
             return True
@@ -62,23 +61,23 @@ class Character(object):
     # Used in the move function
     def collides(self, direction):
         if direction == "UP":
-            if (Map.Grid[self.col][self.row-1]).type == TileType.Rock:
+            if (BOARD.Grid[self.col][self.row-1]).type == TileType.Rock:
                 return True
         elif direction == "LEFT":
-            if (Map.Grid[self.col-1][self.row]).type == TileType.Rock:
+            if (BOARD.Grid[self.col-1][self.row]).type == TileType.Rock:
                 return True
         elif direction == "RIGHT":
-            if (Map.Grid[self.col+1][self.row]).type == TileType.Rock:
+            if (BOARD.Grid[self.col+1][self.row]).type == TileType.Rock:
                 return True
         elif direction == "DOWN":
-            if (Map.Grid[self.col][self.row+1]).type == TileType.Rock:
+            if (BOARD.Grid[self.col][self.row+1]).type == TileType.Rock:
                 return True
         return False
 
     def die(self):
         print('DYING :(')
-        Map.Grid[self.col][self.row] = MapTile("Grass", self.col, self.row, TileType.Grass)
-        Map.Cells.remove(self)
+        BOARD.Grid[self.col][self.row] = MapTile("Grass", self.col, self.row, TileType.Grass)
+        BOARD.Cells.remove(self)
         del self
 
     def reproduce(self):
@@ -87,15 +86,15 @@ class Character(object):
             return
         print("reproducing!")
         new_cell = Character("Hero", 0, col, row)
-        Map.Grid[col][row] = MapTile("cell" + str(Map.index), col, row, TileType.Cell)
-        Map.index += 1
-        Map.Cells.append(new_cell)
+        BOARD.Grid[col][row] = MapTile("cell" + str(Map.index), col, row, TileType.Cell)
+        BOARD.index += 1
+        BOARD.Cells.append(new_cell)
 
     def adjasent_free_space(self):
         for i in [-1, 0, 1]:
             for j in [-1, 0, 1]:
                 if not(i == j and i == 0):
-                    if Map.Grid[self.col + i][self.row + j].type == TileType.Grass:
+                    if BOARD.Grid[self.col + i][self.row + j].type == TileType.Grass:
                         return self.col + i, self.row + j
         return -1, -1
 
@@ -135,3 +134,5 @@ class Map(object):
                     self.Grid[rand_col][rand_row] = temp_tile
                     self.num_food += 1
                     break
+
+BOARD = Map()
