@@ -3,6 +3,7 @@ import random
 from enums import TileType
 import constants as C
 from map_tile import MapTile
+
 # Characters can move around and do cool stuff
 class Character(object):
     def __init__(self, name, hp, col, row):
@@ -11,6 +12,7 @@ class Character(object):
         self.col = col
         self.row = row
         self.hunger = C.INIT_HUNGER
+        self.sight = 3
 
     def handle_step(self, col_advance, row_advance):
         new_col = self.col + col_advance
@@ -56,6 +58,20 @@ class Character(object):
             if self.row < C.MAP_SIZE-1 and not self.collides("DOWN"):
                 is_dead = self.handle_step(0, 1)
         return is_dead
+
+    def choose_direction(self):
+        # search for food in sight
+        for i in range(0, self.sight+1):
+            array = get_close_array(i)
+            random.shuffle(array)
+            for index in array:
+                if has_food(self.col + index[0], self.row + index[1]):
+                    return self.move(get_directions(index[0], index[1]))
+
+        # If the cell doesn't see food:
+        num = random.randint(0, 3)
+        return self.move(int_to_direction(num))
+
 
     # Checks if anything is on top of the grass in the direction that the character wants to move.
     # Used in the move function
@@ -134,5 +150,47 @@ class Map(object):
                     self.Grid[rand_col][rand_row] = temp_tile
                     self.num_food += 1
                     break
+
+def get_close_array(sight):
+    array = []
+    if sight == 0:
+        return array
+    for i in range(0, sight+1):
+        col = i
+        row = sight-i
+        array.append([col, row])
+        array.append([-col, -row])
+        if col != 0 and row != 0:
+            array.append([-col, row])
+            array.append([col, -row])
+    return array
+
+def has_food(col, row):
+    if col >= 0 and col < C.MAP_SIZE and row >=0 and row <= C.MAP_SIZE:
+        if BOARD.Grid[col][row].type == TileType.Food:
+            return True
+    return False
+
+def get_directions(col_step, row_step):
+    if col_step < 0:
+        return "LEFT"
+    elif row_step < 0:
+        return "UP"
+    elif col_step > 0:
+        return "RIGHT"
+    elif row_step > 0:
+        return "DOWN"
+    return "DOWN"
+
+def int_to_direction(num):
+    if num % 4 == 0:
+        return "LEFT"
+    if num % 4 == 1:
+        return "RIGHT"
+    if num % 4 == 2:
+        return "UP"
+    if num % 4 == 3:
+        return "DOWN"
+    return "LEFT"
 
 BOARD = Map()
