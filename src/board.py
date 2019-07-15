@@ -5,14 +5,13 @@ import constants as C
 from map_tile import MapTile
 
 # Characters can move around and do cool stuff
-class Character(object):
-    def __init__(self, name, hp, col, row):
-        self.name = name
-        self.health = hp
-        self.col = col
-        self.row = row
+class Character(MapTile):
+    def __init__(self, name, health, col, row):
+        MapTile.__init__(self, name, col, row, TileType.Cell)
+        self.health = health
         self.hunger = C.INIT_HUNGER
-        self.sight = 3
+        self.sight = C.DEFAULT_SIGHT
+        self.size = C.INIT_SIZE
 
     def handle_step(self, col_advance, row_advance):
         new_col = self.col + col_advance
@@ -33,7 +32,7 @@ class Character(object):
             BOARD.Grid[self.col][self.row] = MapTile("Grass", self.col, self.row, TileType.Grass)
             self.col = new_col
             self.row = new_row
-            BOARD.Grid[new_col][new_row] = MapTile(self.name, new_col, new_row, TileType.Cell)
+            BOARD.Grid[new_col][new_row] = self
         self.hunger += 1
         if(self.hunger) >= 100:
             return True
@@ -91,20 +90,18 @@ class Character(object):
         return False
 
     def die(self):
-        print('DYING :(')
         BOARD.Grid[self.col][self.row] = MapTile("Grass", self.col, self.row, TileType.Grass)
-        BOARD.Cells.remove(self)
+        BOARD.num_cells -= 1
         del self
 
     def reproduce(self):
         col, row = self.adjasent_free_space()
         if col < 0:
             return
-        print("reproducing!")
-        new_cell = Character("Hero", 0, col, row)
-        BOARD.Grid[col][row] = MapTile("cell" + str(Map.index), col, row, TileType.Cell)
+        new_cell = Character("cell" + str(Map.index), 0, col, row)
+        BOARD.Grid[col][row] = new_cell
         BOARD.index += 1
-        BOARD.Cells.append(new_cell)
+        BOARD.num_cells += 1
 
     def adjasent_free_space(self):
         for i in [-1, 0, 1]:
@@ -119,6 +116,7 @@ class Character(object):
 class Map(object):
     index = 1
     num_food = 0
+    num_cells = 0
     Grid: List[List[MapTile]] = []*(C.MAP_SIZE*C.MAP_SIZE)
 
     empty_tile = MapTile("", 0, 0, TileType.Pixel)
@@ -135,8 +133,8 @@ class Map(object):
     RandomColumn = random.randint(0, C.MAP_SIZE - 1)
     RandomRow = random.randint(0, C.MAP_SIZE - 1)
     Hero = Character("Hero", 0, RandomColumn, RandomRow)
-    Cells: List[Character] = [Hero]
-    Grid[RandomColumn][RandomRow] = MapTile("Hero", RandomColumn, RandomRow, TileType.Cell)
+    num_cells += 1
+    Grid[RandomColumn][RandomRow] = Hero
 
     def spread_food(self, num):
         for i in range(num):
