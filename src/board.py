@@ -6,12 +6,12 @@ from map_tile import MapTile
 
 # Characters can move around and do cool stuff
 class Character(MapTile):
-    def __init__(self, name, health, col, row):
+    def __init__(self, name, health, col, row, size):
         MapTile.__init__(self, name, col, row, TileType.Cell)
         self.health = health
         self.hunger = C.INIT_HUNGER
         self.sight = C.DEFAULT_SIGHT
-        self.size = C.INIT_SIZE
+        self.size = size
 
     def handle_step(self, col_advance, row_advance):
         new_col = self.col + col_advance
@@ -19,6 +19,8 @@ class Character(MapTile):
         curr_tile = BOARD.Grid[new_col][new_row]
         if curr_tile.type == TileType.Food:
             self.health += 10
+            if self.size < 10:
+                self.size += 1
             if self.hunger - C.FOOD_WORTH >= 0:
                 self.hunger = self.hunger - C.FOOD_WORTH
             else:
@@ -98,7 +100,9 @@ class Character(MapTile):
         col, row = self.adjasent_free_space()
         if col < 0:
             return
-        new_cell = Character("cell" + str(Map.index), 0, col, row)
+        new_size = int(self.size/2)
+        self.size = new_size
+        new_cell = Character("cell" + str(Map.index), 0, col, row, new_size)
         BOARD.Grid[col][row] = new_cell
         BOARD.index += 1
         BOARD.num_cells += 1
@@ -132,7 +136,7 @@ class Map(object):
 
     RandomColumn = random.randint(0, C.MAP_SIZE - 1)
     RandomRow = random.randint(0, C.MAP_SIZE - 1)
-    Hero = Character("Hero", 0, RandomColumn, RandomRow)
+    Hero = Character("Hero", 0, RandomColumn, RandomRow, C.INIT_SIZE)
     num_cells += 1
     Grid[RandomColumn][RandomRow] = Hero
 
@@ -164,7 +168,7 @@ def get_close_array(sight):
     return array
 
 def has_food(col, row):
-    if col >= 0 and col < C.MAP_SIZE and row >=0 and row <= C.MAP_SIZE:
+    if col >= 0 and col < C.MAP_SIZE and row >= 0 and row <= C.MAP_SIZE:
         if BOARD.Grid[col][row].type == TileType.Food:
             return True
     return False
