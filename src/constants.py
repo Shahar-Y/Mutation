@@ -1,6 +1,6 @@
-# board-related constants                    
+# board-related constants
 MAP_SIZE = 30                                  # how many tiles in either direction of grid
-TILE_WIDTH = 18                                # pixel sizes for grid squares
+TILE_WIDTH = 20                                # pixel sizes for grid squares
 TILE_HEIGHT = TILE_WIDTH
 TILE_MARGIN = 1
 WINDOW_SIZE = (TILE_WIDTH + TILE_MARGIN) * MAP_SIZE + TILE_MARGIN
@@ -13,7 +13,7 @@ DONE = False                                    # variable to keep track if wind
 # cell parameters
 DEFAULT_SIGHT = 12
 INIT_HUNGER = 85
-INIT_SIZE = 10
+INIT_SIZE = 1
 FOOD_WORTH = 10
 REPRO_HEALTH = 30
 
@@ -22,7 +22,7 @@ BLACK = (0, 0, 0)                             # some color definitions
 WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
 GRASS = (255, 255, 255)
-RED = (255,0,0)
+RED = (255, 0, 0)
 FOOD_COLOR = (50, 255, 50)
 BLUE = (0, 0, 255)
 BLUE3 = (0, 50, 250)

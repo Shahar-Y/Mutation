@@ -11,6 +11,8 @@ CLOCK = pygame.time.Clock()
 SCREEN = pygame.display.set_mode(
     [C.WINDOW_SIZE, C.WINDOW_SIZE])  # making the window
 
+def size_to_percentage(num):
+    return (4/5) * (1 - 2/(num+2))
 
 def int_to_direction(num):
     if num % 4 == 0:
@@ -59,16 +61,17 @@ def run_game():
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
-                # Translating mouse position into rows and columns
+                # translating mouse position into rows and columns
                 col = pos[0] // (C.TILE_WIDTH + C.TILE_MARGIN)
                 row = pos[1] // (C.TILE_HEIGHT + C.TILE_MARGIN)
                 print(str(row) + ", " + str(col))
                 # print stuff that inhabits that square
                 print(str(BOARD.Grid[col][row].name))
 
+        # print the grid
         color = C.BLACK
         SCREEN.fill(color)
-        for row in range(C.MAP_SIZE):           # Drawing grid
+        for row in range(C.MAP_SIZE):
             for col in range(C.MAP_SIZE):
                 curr_tile = BOARD.Grid[col][row]
                 is_cell = False
@@ -85,40 +88,43 @@ def run_game():
                 if curr_tile.type == TileType.Food:
                     color = C.FOOD_COLOR
 
+                # location of the top left pixel of the MapTile
+                row_start = (C.TILE_MARGIN + C.TILE_WIDTH) * col + C.TILE_MARGIN
+                col_start = (C.TILE_MARGIN + C.TILE_HEIGHT) * row + C.TILE_MARGIN
 
                 if is_cell:
                     pygame.draw.rect(
                         SCREEN,
                         C.WHITE,
                         [
-                            (C.TILE_MARGIN + C.TILE_WIDTH)*col + C.TILE_MARGIN,
-                            (C.TILE_MARGIN + C.TILE_HEIGHT)*row + C.TILE_MARGIN,
+                            row_start,
+                            col_start,
                             C.TILE_WIDTH,
                             C.TILE_HEIGHT
                         ]
                     )
+                    cell_percentage = size_to_percentage(curr_tile.size)
                     pygame.draw.rect(
                         SCREEN,
                         color,
                         [
-                            (C.TILE_MARGIN + C.TILE_WIDTH) * col + C.TILE_MARGIN + C.TILE_WIDTH / 6,
-                            (C.TILE_MARGIN + C.TILE_HEIGHT) * row + C.TILE_MARGIN + C.TILE_HEIGHT / 6,
-                            2 * C.TILE_WIDTH / 3,
-                            2 * C.TILE_HEIGHT / 3
+                            row_start + C.TILE_WIDTH * (1 - cell_percentage)/2,
+                            col_start + C.TILE_HEIGHT * (1 - cell_percentage)/2,
+                            C.TILE_WIDTH * cell_percentage,
+                            C.TILE_HEIGHT * cell_percentage
                         ]
                     )
                 else:
                     pygame.draw.rect(
-                    SCREEN,
-                    color,
-                    [
-                        (C.TILE_MARGIN + C.TILE_WIDTH) * col + C.TILE_MARGIN,
-                        (C.TILE_MARGIN + C.TILE_HEIGHT) * row + C.TILE_MARGIN,
-                        C.TILE_WIDTH,
-                        C.TILE_HEIGHT
-                    ]
-                )
-                
+                        SCREEN,
+                        color,
+                        [
+                            row_start,
+                            col_start,
+                            C.TILE_WIDTH,
+                            C.TILE_HEIGHT
+                        ]
+                    )
 
         CLOCK.tick(60)      # Limit to 60 fps or something
 
