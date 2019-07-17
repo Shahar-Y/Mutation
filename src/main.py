@@ -1,5 +1,4 @@
 from typing import List
-import random
 import time
 import pygame
 from enums import TileType
@@ -7,8 +6,11 @@ import constants as C
 from board import Character, BOARD
 
 pygame.init()                                 # start up dat pygame
-CLOCK = pygame.time.Clock()                   # for frame-rate or something? still not very sure
-SCREEN = pygame.display.set_mode([C.WINDOW_SIZE, C.WINDOW_SIZE])  # making the window
+# for frame-rate or something? still not very sure
+CLOCK = pygame.time.Clock()
+SCREEN = pygame.display.set_mode(
+    [C.WINDOW_SIZE, C.WINDOW_SIZE])  # making the window
+
 
 def int_to_direction(num):
     if num % 4 == 0:
@@ -21,79 +23,107 @@ def int_to_direction(num):
         return "DOWN"
     return "LEFT"
 
-def get_cells_by_location(col, row):
-    for i in range(len(BOARD.Cells)):
-        if BOARD.Cells[i].col == col and BOARD.Cells[i].row == row:
-            return i
-    return -1
-
-
 def run_game():
     done = False
     while not done:     # Main pygame loop
-        time.sleep(0.1)
-        dead_pool: List[Character] = []
-        for i in range(len(BOARD.Cells)):
-            num = random.randint(0, 3)
-            is_dead = BOARD.Cells[i].choose_direction()
-            if is_dead:
-                dead_pool.append(BOARD.Cells[i])
+        time.sleep(1 / C.GAME_SPEED)
 
+        print(str(BOARD.num_cells))
+
+        # get all cells on board
+        cells = []
+        for col in range(C.MAP_SIZE):
+            for row in range(C.MAP_SIZE):
+                if BOARD.Grid[col][row].type == TileType.Cell:
+                    cells.append(BOARD.Grid[col][row])
+
+        # all cells make a step and those who starved are added to the dead pool
+        dead_pool: List[Character] = []
+        for i in range(len(cells)):
+            is_dead = cells[i].choose_direction()
+            if is_dead:
+                dead_pool.append(cells[i])
+
+        # kill all of the starved cells
         for cell in dead_pool:
             cell.die()
 
+        # add food if needed
         if BOARD.num_food <= C.FOOD_DROPPED:
             BOARD.spread_food(C.FOOD_DROPPED)
 
-        for event in pygame.event.get():         # catching events
+        # catching events
+        for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 done = True
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
-                col = pos[0] // (C.TILE_WIDTH + C.TILE_MARGIN)  # Translating mouse position into rows and columns
+                # Translating mouse position into rows and columns
+                col = pos[0] // (C.TILE_WIDTH + C.TILE_MARGIN)
                 row = pos[1] // (C.TILE_HEIGHT + C.TILE_MARGIN)
                 print(str(row) + ", " + str(col))
-                print(str(BOARD.Grid[col][row].name))  # print stuff that inhabits that square
-
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
-                    BOARD.Hero.move("LEFT")
-                if event.key == pygame.K_RIGHT:
-                    BOARD.Hero.move("RIGHT")
-                if event.key == pygame.K_UP:
-                    BOARD.Hero.move("UP")
-                if event.key == pygame.K_DOWN:
-                    BOARD.Hero.move("DOWN")
+                # print stuff that inhabits that square
+                print(str(BOARD.Grid[col][row].name))
 
         color = C.BLACK
         SCREEN.fill(color)
         for row in range(C.MAP_SIZE):           # Drawing grid
             for col in range(C.MAP_SIZE):
-                if BOARD.Grid[col][row].type == TileType.Grass:
+                curr_tile = BOARD.Grid[col][row]
+                is_cell = False
+                if curr_tile.type == TileType.Grass:
                     color = C.GRASS
-                if BOARD.Grid[col][row].type == TileType.Cell:
-                    index = get_cells_by_location(col, row)
-                    if index < 0:
-                        print("BAD INDEX")
-                        continue
-                    if BOARD.Cells[index].health <= 0:
+                if curr_tile.type == TileType.Cell:
+                    is_cell = True
+                    if curr_tile.health <= 0:
                         color = C.BLUE1
-                    elif BOARD.Cells[index].health <= C.REPRO_HEALTH/3:
+                    elif curr_tile.health <= C.REPRO_HEALTH/3:
                         color = C.BLUE2
-                    elif BOARD.Cells[index].health <= 2*C.REPRO_HEALTH/3:
+                    elif curr_tile.health <= 2*C.REPRO_HEALTH/3:
                         color = C.BLUE3
-                if BOARD.Grid[col][row].type == TileType.Food:
+                if curr_tile.type == TileType.Food:
                     color = C.FOOD_COLOR
 
-                pygame.draw.rect(SCREEN, color, [(C.TILE_MARGIN + C.TILE_WIDTH) * col + C.TILE_MARGIN,
-                                                 (C.TILE_MARGIN + C.TILE_HEIGHT) * row + C.TILE_MARGIN,
-                                                 C.TILE_WIDTH,
-                                                 C.TILE_HEIGHT])
+
+                if is_cell:
+                    pygame.draw.rect(
+                        SCREEN,
+                        C.WHITE,
+                        [
+                            (C.TILE_MARGIN + C.TILE_WIDTH)*col + C.TILE_MARGIN,
+                            (C.TILE_MARGIN + C.TILE_HEIGHT)*row + C.TILE_MARGIN,
+                            C.TILE_WIDTH,
+                            C.TILE_HEIGHT
+                        ]
+                    )
+                    pygame.draw.rect(
+                        SCREEN,
+                        color,
+                        [
+                            (C.TILE_MARGIN + C.TILE_WIDTH) * col + C.TILE_MARGIN + C.TILE_WIDTH / 6,
+                            (C.TILE_MARGIN + C.TILE_HEIGHT) * row + C.TILE_MARGIN + C.TILE_HEIGHT / 6,
+                            2 * C.TILE_WIDTH / 3,
+                            2 * C.TILE_HEIGHT / 3
+                        ]
+                    )
+                else:
+                    pygame.draw.rect(
+                    SCREEN,
+                    color,
+                    [
+                        (C.TILE_MARGIN + C.TILE_WIDTH) * col + C.TILE_MARGIN,
+                        (C.TILE_MARGIN + C.TILE_HEIGHT) * row + C.TILE_MARGIN,
+                        C.TILE_WIDTH,
+                        C.TILE_HEIGHT
+                    ]
+                )
+                
 
         CLOCK.tick(60)      # Limit to 60 fps or something
 
-        pygame.display.flip()     # Honestly not sure what this does, but it breaks if I remove it
+        # Honestly not sure what this does, but it breaks if I remove it
+        pygame.display.flip()
 
 
 BOARD.spread_food(C.FOOD_DROPPED * 2)
