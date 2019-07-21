@@ -5,12 +5,14 @@ import constants as C
 from map_tile import MapTile
 
 # Characters can move around and do cool stuff
+
+
 class Character(MapTile):
-    def __init__(self, name, health, col, row, size):
+    def __init__(self, name, health, col, row, size, hunger, sight):
         MapTile.__init__(self, name, col, row, TileType.Cell)
         self.health = health
-        self.hunger = C.INIT_HUNGER
-        self.sight = C.DEFAULT_SIGHT
+        self.hunger = hunger
+        self.sight = sight
         self.size = size
 
     def handle_step(self, col_advance, row_advance):
@@ -31,7 +33,8 @@ class Character(MapTile):
                 self.reproduce()
 
         if curr_tile.type == TileType.Grass or curr_tile.type == TileType.Food:
-            BOARD.Grid[self.col][self.row] = MapTile("Grass", self.col, self.row, TileType.Grass)
+            BOARD.Grid[self.col][self.row] = MapTile(
+                "Grass", self.col, self.row, TileType.Grass)
             self.col = new_col
             self.row = new_row
             BOARD.Grid[new_col][new_row] = self
@@ -73,9 +76,9 @@ class Character(MapTile):
         num = random.randint(0, 3)
         return self.move(int_to_direction(num))
 
-
     # Checks if anything is on top of the grass in the direction that the character wants to move.
     # Used in the move function
+
     def collides(self, direction):
         if direction == "UP":
             if (BOARD.Grid[self.col][self.row-1]).type == TileType.Rock:
@@ -92,7 +95,8 @@ class Character(MapTile):
         return False
 
     def die(self):
-        BOARD.Grid[self.col][self.row] = MapTile("Grass", self.col, self.row, TileType.Grass)
+        BOARD.Grid[self.col][self.row] = MapTile(
+            "Grass", self.col, self.row, TileType.Grass)
         BOARD.num_cells -= 1
         del self
 
@@ -100,9 +104,11 @@ class Character(MapTile):
         col, row = self.adjasent_free_space()
         if col < 0:
             return
-        new_size = int(self.size/2)
+        new_size = 1 if int(self.size/2) == 0 else int(self.size/2)
         self.size = new_size
-        new_cell = Character("cell" + str(Map.index), 0, col, row, new_size)
+        self.hunger = int(100-(100-self.hunger)/2)
+        new_cell = Character("cell" + str(Map.index), 0,
+                             col, row, new_size, self.hunger, C.DEFAULT_SIGHT)
         BOARD.Grid[col][row] = new_cell
         BOARD.index += 1
         BOARD.num_cells += 1
@@ -136,7 +142,8 @@ class Map(object):
 
     RandomColumn = random.randint(0, C.MAP_SIZE - 1)
     RandomRow = random.randint(0, C.MAP_SIZE - 1)
-    Hero = Character("Hero", 0, RandomColumn, RandomRow, C.INIT_SIZE)
+    Hero = Character("Hero", 0, RandomColumn, RandomRow,
+                     C.INIT_SIZE, C.INIT_HUNGER, C.DEFAULT_SIGHT)
     num_cells += 1
     Grid[RandomColumn][RandomRow] = Hero
 
@@ -148,10 +155,12 @@ class Map(object):
                 rand_col = random.randint(0, C.MAP_SIZE - 1)
                 rand_row = random.randint(0, C.MAP_SIZE - 1)
                 if self.Grid[rand_col][rand_row].type == TileType.Grass:
-                    temp_tile = MapTile("Food", rand_col, rand_row, TileType.Food)
+                    temp_tile = MapTile(
+                        "Food", rand_col, rand_row, TileType.Food)
                     self.Grid[rand_col][rand_row] = temp_tile
                     self.num_food += 1
                     break
+
 
 def get_close_array(sight):
     array = []
@@ -167,11 +176,13 @@ def get_close_array(sight):
             array.append([col, -row])
     return array
 
+
 def has_food(col, row):
     if col >= 0 and col < C.MAP_SIZE and row >= 0 and row <= C.MAP_SIZE:
         if BOARD.Grid[col][row].type == TileType.Food:
             return True
     return False
+
 
 def get_directions(col_step, row_step):
     if col_step < 0:
@@ -184,6 +195,7 @@ def get_directions(col_step, row_step):
         return "DOWN"
     return "DOWN"
 
+
 def int_to_direction(num):
     if num % 4 == 0:
         return "LEFT"
@@ -194,5 +206,6 @@ def int_to_direction(num):
     if num % 4 == 3:
         return "DOWN"
     return "LEFT"
+
 
 BOARD = Map()

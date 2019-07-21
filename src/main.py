@@ -27,7 +27,9 @@ def int_to_direction(num):
 
 def run_game():
     done = False
+    loop_counter = 0
     while not done:     # Main pygame loop
+        loop_counter += 1
         time.sleep(1 / C.GAME_SPEED)
 
         print(str(BOARD.num_cells))
@@ -51,7 +53,7 @@ def run_game():
             cell.die()
 
         # add food if needed
-        if BOARD.num_food <= C.FOOD_DROPPED:
+        if loop_counter % C.DROPPING_PACE == 0:
             BOARD.spread_food(C.FOOD_DROPPED)
 
         # catching events
