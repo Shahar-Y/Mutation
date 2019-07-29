@@ -3,4 +3,6 @@
 ### Running the game:
 - install python 3.6
 - install pygame
-- run main_gui.py
+- run main.py
+
+change parameters under src/costants.py
