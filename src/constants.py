@@ -1,13 +1,13 @@
 # board-related constants
-MAP_SIZE = 40                                  # how many tiles in either direction of grid
+MAP_SIZE = 30                                  # how many tiles in either direction of grid
 TILE_WIDTH = 18                                # pixel sizes for grid squares
 TILE_HEIGHT = TILE_WIDTH
 TILE_MARGIN = 1
 WINDOW_SIZE = (TILE_WIDTH + TILE_MARGIN) * MAP_SIZE + TILE_MARGIN
 
 # game parameters
-FOOD_DROPPED = int(3)
-GAME_SPEED = 20
+FOOD_DROPPED = int(2)
+GAME_SPEED = 17
 DONE = False                                    # variable to keep track if window is open
 
 DROPPING_PACE = 2
@@ -19,7 +19,7 @@ INIT_SIZE = 1
 FOOD_WORTH = 15
 REPRO_HEALTH = 40
 EATING_SIZE = 3
-COLOR_CHANGE = 10
+COLOR_CHANGE = 4
 
 # color constants
 BLACK = (0, 0, 0)                             # some color definitions
