@@ -166,7 +166,7 @@ class Map(object):
     RandomColumn = random.randint(0, C.MAP_SIZE - 1)
     RandomRow = random.randint(0, C.MAP_SIZE - 1)
     Hero = Character("Hero", 0, RandomColumn, RandomRow,
-                     C.INIT_SIZE, C.INIT_HUNGER, C.DEFAULT_SIGHT, C.RED)
+                     C.INIT_SIZE, C.INIT_HUNGER, C.DEFAULT_SIGHT, C.BLUE2)
     num_cells += 1
     Grid[RandomColumn][RandomRow] = Hero
 
