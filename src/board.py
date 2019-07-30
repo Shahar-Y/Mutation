@@ -18,6 +18,7 @@ class Character(MapTile):
         self.size = size
         self.is_dead = False
         self.color = color
+        self.times_replicated = 0
 
     def food_eaten(self):
         self.health += 10
@@ -122,10 +123,15 @@ class Character(MapTile):
             return
         new_size = 1 if int(self.size/2) == 0 else int(self.size/2)
         self.size = new_size
-        self.color = get_rand_color()
+        if self.times_replicated > 5:
+            self.color = get_rand_color()
+            self.times_replicated = 0
+
         self.hunger = int(100-(100-self.hunger)/2)
         new_cell = Character("cell" + str(Map.index), 0,
                              col, row, new_size, self.hunger, C.DEFAULT_SIGHT, self.color)
+        self.times_replicated += 1
+        new_cell.times_replicated = self.times_replicated
         BOARD.Grid[col][row] = new_cell
         BOARD.index += 1
         BOARD.num_cells += 1
