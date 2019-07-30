@@ -6,3 +6,6 @@
 - run main.py
 
 change parameters under src/costants.py
+
+### Example for the running project:
+![Evolution Demo](evolution.gif)
