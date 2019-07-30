@@ -19,6 +19,7 @@ INIT_SIZE = 1
 FOOD_WORTH = 15
 REPRO_HEALTH = 40
 EATING_SIZE = 3
+COLOR_CHANGE = 10
 
 # color constants
 BLACK = (0, 0, 0)                             # some color definitions

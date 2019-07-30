@@ -123,7 +123,7 @@ class Character(MapTile):
             return
         new_size = 1 if int(self.size/2) == 0 else int(self.size/2)
         self.size = new_size
-        if self.times_replicated > 5:
+        if self.times_replicated > C.COLOR_CHANGE:
             self.color = get_rand_color()
             self.times_replicated = 0
 
