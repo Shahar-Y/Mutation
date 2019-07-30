@@ -25,6 +25,9 @@ def int_to_direction(num):
         return "DOWN"
     return "LEFT"
 
+def sortSize(cell):
+    return cell.size
+
 def run_game():
     done = False
     loop_counter = 0
@@ -40,6 +43,7 @@ def run_game():
             for row in range(C.MAP_SIZE):
                 if BOARD.Grid[col][row].type == TileType.Cell:
                     cells.append(BOARD.Grid[col][row])
+        cells.sort(key=sortSize, reverse=True);
 
         # all cells make a step and those who starved are added to the dead pool
         dead_pool: List[Character] = []
@@ -81,12 +85,13 @@ def run_game():
                     color = C.GRASS
                 if curr_tile.type == TileType.Cell:
                     is_cell = True
-                    if curr_tile.health <= 0:
-                        color = C.BLUE1
-                    elif curr_tile.health <= C.REPRO_HEALTH/3:
-                        color = C.BLUE2
-                    elif curr_tile.health <= 2*C.REPRO_HEALTH/3:
-                        color = C.BLUE3
+                    color = curr_tile.color
+                    # if curr_tile.health <= 0:
+                    #     color = C.BLUE1
+                    # elif curr_tile.health <= C.REPRO_HEALTH/3:
+                    #     color = C.BLUE2
+                    # elif curr_tile.health <= 2*C.REPRO_HEALTH/3:
+                    #     color = C.BLUE3
                 if curr_tile.type == TileType.Food:
                     color = C.FOOD_COLOR
 
