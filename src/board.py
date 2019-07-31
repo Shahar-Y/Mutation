@@ -4,24 +4,26 @@ from enums import TileType
 import constants as C
 from map_tile import MapTile
 
-# Characters can move around and do cool stuff
+# cells can move around and do cool stuff
 
 def get_rand_color():
     return (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
 
-class Character(MapTile):
-    def __init__(self, name, health, col, row, size, hunger, sight, color):
+class Cell(MapTile):
+    def __init__(self, name, food_to_repro, col, row, size, hunger, sight, color):
         MapTile.__init__(self, name, col, row, TileType.Cell)
-        self.health = health
+        self.pregnancy = 0
         self.hunger = hunger
+        self.food_to_repro = food_to_repro
         self.sight = sight
         self.size = size
+        self.food_worth = C.FOOD_WORTH
         self.is_dead = False
         self.color = color
         self.times_replicated = 0
 
     def food_eaten(self):
-        self.health += 10
+        self.pregnancy += 1
         if self.size < 10:
             self.size += 1
         if self.hunger - C.FOOD_WORTH >= 0:
@@ -29,8 +31,8 @@ class Character(MapTile):
         else:
             self.hunger = 0
         BOARD.num_food -= 1
-        if self.health >= C.REPRO_HEALTH:
-            self.health = 0
+        if self.pregnancy >= self.food_to_repro:
+            self.pregnancy = 0
             self.reproduce()
 
 
@@ -42,10 +44,10 @@ class Character(MapTile):
             self.food_eaten()
 
         if curr_tile.type == TileType.Cell and curr_tile.size < self.size:
-            print(self.col, ", ", self.row, " eating cell in ", new_col, ", ", new_row)
+            # print(self.col, ", ", self.row, " eating cell in ", new_col, ", ", new_row)
             curr_tile.is_dead = True
             self.food_eaten()
-            print("done")
+            # print("done")
 
         if curr_tile.type == TileType.Grass or curr_tile.type == TileType.Food:
             BOARD.Grid[self.col][self.row] = MapTile(
@@ -58,7 +60,7 @@ class Character(MapTile):
             return True
         return False
 
-    # This function is how a character moves around in a certain direction
+    # This function is how a cell moves around in a certain direction
     def move(self, direction):
         is_dead = False
         if direction == "UP":
@@ -93,7 +95,7 @@ class Character(MapTile):
         num = random.randint(0, 3)
         return self.move(int_to_direction(num))
 
-    # Checks if anything is on top of the grass in the direction that the character wants to move.
+    # Checks if anything is on top of the grass in the direction that the cell wants to move.
     # Used in the move function
 
     def collides(self, direction):
@@ -128,7 +130,7 @@ class Character(MapTile):
             self.times_replicated = 0
 
         self.hunger = int(100-(100-self.hunger)/2)
-        new_cell = Character("cell" + str(Map.index), 0,
+        new_cell = Cell("cell" + str(Map.index), self.food_to_repro,
                              col, row, new_size, self.hunger, C.DEFAULT_SIGHT, self.color)
         self.times_replicated += 1
         new_cell.times_replicated = self.times_replicated
@@ -165,8 +167,8 @@ class Map(object):
 
     RandomColumn = random.randint(0, C.MAP_SIZE - 1)
     RandomRow = random.randint(0, C.MAP_SIZE - 1)
-    Hero = Character("Hero", 0, RandomColumn, RandomRow,
-                     C.INIT_SIZE, C.INIT_HUNGER, C.DEFAULT_SIGHT, C.BLUE2)
+    Hero = Cell("Hero", C.FOOD_TO_REPRO, RandomColumn, RandomRow,
+                C.INIT_SIZE, C.INIT_HUNGER, C.DEFAULT_SIGHT, C.BLUE2)
     num_cells += 1
     Grid[RandomColumn][RandomRow] = Hero
 

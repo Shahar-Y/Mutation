@@ -6,18 +6,18 @@ TILE_MARGIN = 1
 WINDOW_SIZE = (TILE_WIDTH + TILE_MARGIN) * MAP_SIZE + TILE_MARGIN
 
 # game parameters
-FOOD_DROPPED = int(2)
+FOOD_DROPPED = int(5)
 GAME_SPEED = 17
 DONE = False                                    # variable to keep track if window is open
 
 DROPPING_PACE = 2
 
 # cell parameters
-DEFAULT_SIGHT = 10
+DEFAULT_SIGHT = 6
 INIT_HUNGER = 0
 INIT_SIZE = 1
-FOOD_WORTH = 15
-REPRO_HEALTH = 40
+FOOD_WORTH = 12
+FOOD_TO_REPRO = 3
 EATING_SIZE = 3
 COLOR_CHANGE = 4
 
