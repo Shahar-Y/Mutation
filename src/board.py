@@ -14,13 +14,14 @@ class Cell(MapTile):
         MapTile.__init__(self, name, col, row, TileType.Cell)
         self.pregnancy = 0
         self.hunger = hunger
-        self.food_to_repro = food_to_repro
-        self.sight = sight
-        self.size = size
         self.food_worth = C.FOOD_WORTH
         self.is_dead = False
         self.color = color
         self.times_replicated = 0
+        # The three mutateable features of a cell
+        self.food_to_repro = food_to_repro
+        self.sight = sight
+        self.size = size
 
     def food_eaten(self):
         self.pregnancy += 1
@@ -129,9 +130,11 @@ class Cell(MapTile):
             self.color = get_rand_color()
             self.times_replicated = 0
 
+        self.mutate_properties()
+
         self.hunger = int(100-(100-self.hunger)/2)
         new_cell = Cell("cell" + str(Map.index), self.food_to_repro,
-                             col, row, new_size, self.hunger, C.DEFAULT_SIGHT, self.color)
+                             col, row, new_size, self.hunger, self.sight, self.color)
         self.times_replicated += 1
         new_cell.times_replicated = self.times_replicated
         BOARD.Grid[col][row] = new_cell
@@ -145,7 +148,35 @@ class Cell(MapTile):
                     if BOARD.Grid[self.col + i][self.row + j].type == TileType.Grass:
                         return self.col + i, self.row + j
         return -1, -1
+    
+    def mutate_properties(self):
+        switcher = {
+            0: get_sight(self),
+            1: get_size(self),
+            2: get_food_to_repro(self),
+        }
+        while(True):
+            prop_inc = random.randint(0, 2)
+            prop_dec = random.randint(0, 2)
+            if prop_inc == prop_dec:
+                continue
+            inc_curr_value, inc_max, _, inc_name = switcher.get(prop_inc, lambda: "Invalid inc")
+            dec_curr_value, _, dec_min, dec_name = switcher.get(prop_dec, lambda: "Invalid dec")
+            if(inc_curr_value >= inc_max or dec_curr_value <= dec_min):
+                continue
+            self.__setattr__(inc_name, self.__getattribute__(inc_name) + 1)
+            self.__setattr__(dec_name, self.__getattribute__(dec_name) - 1)
+            break
 
+def get_sight(cell: Cell):
+    return (cell.sight, C.MAX_SIGHT, C.MIN_SIGHT, "sight")
+
+def get_size(cell: Cell):
+    return (cell.size, C.MAX_SIZE, C.MIN_SIZE, "size")
+
+def get_food_to_repro(cell: Cell):
+    return cell.food_to_repro, C.MAX_FOOD_TO_REPRO, C.MIN_FOOD_TO_REPRO, "food_to_repro"
+            
 
 # The main class; where the action happens
 class Map(object):
@@ -167,8 +198,8 @@ class Map(object):
 
     RandomColumn = random.randint(0, C.MAP_SIZE - 1)
     RandomRow = random.randint(0, C.MAP_SIZE - 1)
-    Hero = Cell("Hero", C.FOOD_TO_REPRO, RandomColumn, RandomRow,
-                C.INIT_SIZE, C.INIT_HUNGER, C.DEFAULT_SIGHT, C.BLUE2)
+    Hero = Cell("Hero", C.INIT_FOOD_TO_REPRO, RandomColumn, RandomRow,
+                C.INIT_SIZE, C.INIT_HUNGER, C.INIT_SIGHT, C.BLUE2)
     num_cells += 1
     Grid[RandomColumn][RandomRow] = Hero
 

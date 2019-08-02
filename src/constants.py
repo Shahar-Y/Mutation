@@ -6,20 +6,34 @@ TILE_MARGIN = 1
 WINDOW_SIZE = (TILE_WIDTH + TILE_MARGIN) * MAP_SIZE + TILE_MARGIN
 
 # game parameters
-FOOD_DROPPED = int(5)
+FOOD_DROPPED = int(1)
 GAME_SPEED = 17
 DONE = False                                    # variable to keep track if window is open
 
 DROPPING_PACE = 2
 
 # cell parameters
-DEFAULT_SIGHT = 6
 INIT_HUNGER = 0
-INIT_SIZE = 1
 FOOD_WORTH = 12
-FOOD_TO_REPRO = 3
 EATING_SIZE = 3
 COLOR_CHANGE = 4
+# cell mutation features
+MUTATION_POINTS = 15
+
+INIT_SIZE = 1
+MAX_SIZE = 10
+MIN_SIZE = 1
+SIZE_VALUE = 1
+
+INIT_SIGHT = 10
+MAX_SIGHT = 10
+MIN_SIGHT = 1
+SIGHT_VALUE = 1
+
+INIT_FOOD_TO_REPRO = 3
+MAX_FOOD_TO_REPRO = 4
+MIN_FOOD_TO_REPRO = 1
+FOOD_TO_REPRO_VALUE = -2
 
 # color constants
 BLACK = (0, 0, 0)                             # some color definitions
@@ -32,3 +46,4 @@ BLUE = (0, 0, 255)
 BLUE3 = (0, 50, 250)
 BLUE2 = (0, 150, 250)
 BLUE1 = (0, 220, 250)
+MAX_RGB = 255

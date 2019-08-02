@@ -25,9 +25,6 @@ def int_to_direction(num):
         return "DOWN"
     return "LEFT"
 
-def sortSize(cell):
-    return cell.size
-
 def run_game():
     done = False
     loop_counter = 0
@@ -133,7 +130,11 @@ def run_game():
         pygame.display.flip()
 
 def get_color_by_features(cell: Cell):
-    return (int(cell.food_to_repro*2.5*25), int(cell.sight*25), int((cell.food_worth-5)*25))
+    return (
+        int((C.MAX_FOOD_TO_REPRO - cell.food_to_repro)*2.5*25),
+        int(cell.sight*25),
+        int((cell.food_worth-5)*25)
+        )
 
 BOARD.spread_food(C.FOOD_DROPPED * 2)
 run_game()
