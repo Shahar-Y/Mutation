@@ -25,8 +25,6 @@ class Cell(MapTile):
 
     def food_eaten(self):
         self.pregnancy += 1
-        if self.size < 10:
-            self.size += 1
         if self.hunger - C.FOOD_WORTH >= 0:
             self.hunger = self.hunger - C.FOOD_WORTH
         else:
@@ -44,7 +42,7 @@ class Cell(MapTile):
         if curr_tile.type == TileType.Food:
             self.food_eaten()
 
-        if curr_tile.type == TileType.Cell and curr_tile.size < self.size:
+        if curr_tile.type == TileType.Cell and self.size >= curr_tile.size+C.EATING_SIZE:
             # print(self.col, ", ", self.row, " eating cell in ", new_col, ", ", new_row)
             curr_tile.is_dead = True
             self.food_eaten()
@@ -122,21 +120,15 @@ class Cell(MapTile):
 
     def reproduce(self):
         col, row = self.adjasent_free_space()
-        if col < 0:
-            return
-        new_size = 1 if int(self.size/2) == 0 else int(self.size/2)
-        self.size = new_size
-        if self.times_replicated > C.COLOR_CHANGE:
-            self.color = get_rand_color()
-            self.times_replicated = 0
-
-        self.mutate_properties()
 
         self.hunger = int(100-(100-self.hunger)/2)
         new_cell = Cell("cell" + str(Map.index), self.food_to_repro,
-                             col, row, new_size, self.hunger, self.sight, self.color)
-        self.times_replicated += 1
-        new_cell.times_replicated = self.times_replicated
+                             col, row, self.size, self.hunger, self.sight, self.color)
+        if random.randint(1, C.MUTATION_CHANCE) == 1:
+            print("mutation!")
+            print("size: ", self.size, ", sight: ", self.sight, ", ftr: ", self.food_to_repro)
+            new_cell.mutate_properties()
+            print("size: ", new_cell.size, ", sight: ", new_cell.sight, ", ftr: ", new_cell.food_to_repro)
         BOARD.Grid[col][row] = new_cell
         BOARD.index += 1
         BOARD.num_cells += 1
@@ -160,22 +152,23 @@ class Cell(MapTile):
             prop_dec = random.randint(0, 2)
             if prop_inc == prop_dec:
                 continue
-            inc_curr_value, inc_max, _, inc_name = switcher.get(prop_inc, lambda: "Invalid inc")
-            dec_curr_value, _, dec_min, dec_name = switcher.get(prop_dec, lambda: "Invalid dec")
-            if(inc_curr_value >= inc_max or dec_curr_value <= dec_min):
+            inc_curr_value, inc_max, inc_min, inc_name, v_1 = switcher.get(prop_inc, lambda: "Invalid inc")
+            dec_curr_value, dec_max, dec_min, dec_name, v_2 = switcher.get(prop_dec, lambda: "Invalid dec")
+            if(inc_curr_value + v_2 > inc_max or inc_curr_value + v_2 < inc_min
+                or dec_curr_value - v_1 > dec_max or dec_curr_value - v_1 < dec_min):
                 continue
-            self.__setattr__(inc_name, self.__getattribute__(inc_name) + 1)
-            self.__setattr__(dec_name, self.__getattribute__(dec_name) - 1)
+            self.__setattr__(inc_name, self.__getattribute__(inc_name) + v_2)
+            self.__setattr__(dec_name, self.__getattribute__(dec_name) - v_1)
             break
 
 def get_sight(cell: Cell):
-    return (cell.sight, C.MAX_SIGHT, C.MIN_SIGHT, "sight")
+    return cell.sight, C.MAX_SIGHT, C.MIN_SIGHT, "sight", 1
 
 def get_size(cell: Cell):
-    return (cell.size, C.MAX_SIZE, C.MIN_SIZE, "size")
+    return cell.size, C.MAX_SIZE, C.MIN_SIZE, "size", 1
 
 def get_food_to_repro(cell: Cell):
-    return cell.food_to_repro, C.MAX_FOOD_TO_REPRO, C.MIN_FOOD_TO_REPRO, "food_to_repro"
+    return cell.food_to_repro, C.MAX_FOOD_TO_REPRO, C.MIN_FOOD_TO_REPRO, "food_to_repro", -2
             
 
 # The main class; where the action happens
@@ -235,7 +228,7 @@ def get_close_array(sight):
 
 def has_food(cell, col, row):
     if col >= 0 and col < C.MAP_SIZE and row >= 0 and row <= C.MAP_SIZE:
-        if (BOARD.Grid[col][row].type == TileType.Food) or (BOARD.Grid[col][row].type == TileType.Food and cell.size - BOARD.Grid[col][row] >= C.EATING_SIZE):
+        if (BOARD.Grid[col][row].type == TileType.Food) or (BOARD.Grid[col][row].type == TileType.Food and cell.size - BOARD.Grid[col][row].size >= C.EATING_SIZE):
             return True
     return False
 

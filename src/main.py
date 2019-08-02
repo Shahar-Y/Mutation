@@ -131,9 +131,9 @@ def run_game():
 
 def get_color_by_features(cell: Cell):
     return (
-        int((C.MAX_FOOD_TO_REPRO - cell.food_to_repro)*2.5*25),
+        int(cell.size*25),
         int(cell.sight*25),
-        int((cell.food_worth-5)*25)
+        int((C.MAX_FOOD_TO_REPRO - cell.food_to_repro + 1)*2.5*25)
         )
 
 BOARD.spread_food(C.FOOD_DROPPED * 2)
