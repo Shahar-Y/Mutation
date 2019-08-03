@@ -1,5 +1,5 @@
 {
-    "python.pythonPath": "C:\\Users\\Shahar\\AppData\\Local\\Programs\\Python\\Python36\\python.exe",
+    "python.pythonPath": "C:\\Users\\shya9\\AppData\\Local\\Programs\\Python\\Python36-32\\python.exe",
     "python.linting.pylintArgs": [
         "--extension-pkg-whitelist=pygame"
     ],

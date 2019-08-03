@@ -4,33 +4,34 @@ from enums import TileType
 import constants as C
 from map_tile import MapTile
 
-# Characters can move around and do cool stuff
+# cells can move around and do cool stuff
 
 def get_rand_color():
     return (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
 
-class Character(MapTile):
-    def __init__(self, name, health, col, row, size, hunger, sight, color):
+class Cell(MapTile):
+    def __init__(self, name, food_to_repro, col, row, size, hunger, sight, color):
         MapTile.__init__(self, name, col, row, TileType.Cell)
-        self.health = health
+        self.pregnancy = 0
         self.hunger = hunger
-        self.sight = sight
-        self.size = size
+        self.food_worth = C.FOOD_WORTH
         self.is_dead = False
         self.color = color
         self.times_replicated = 0
+        # The three mutateable features of a cell
+        self.food_to_repro = food_to_repro
+        self.sight = sight
+        self.size = size
 
     def food_eaten(self):
-        self.health += 10
-        if self.size < 10:
-            self.size += 1
+        self.pregnancy += 1
         if self.hunger - C.FOOD_WORTH >= 0:
             self.hunger = self.hunger - C.FOOD_WORTH
         else:
             self.hunger = 0
         BOARD.num_food -= 1
-        if self.health >= C.REPRO_HEALTH:
-            self.health = 0
+        if self.pregnancy >= self.food_to_repro:
+            self.pregnancy = 0
             self.reproduce()
 
 
@@ -41,11 +42,11 @@ class Character(MapTile):
         if curr_tile.type == TileType.Food:
             self.food_eaten()
 
-        if curr_tile.type == TileType.Cell and curr_tile.size < self.size:
-            print(self.col, ", ", self.row, " eating cell in ", new_col, ", ", new_row)
+        if curr_tile.type == TileType.Cell and self.size >= curr_tile.size+C.EATING_SIZE:
+            # print(self.col, ", ", self.row, " eating cell in ", new_col, ", ", new_row)
             curr_tile.is_dead = True
             self.food_eaten()
-            print("done")
+            # print("done")
 
         if curr_tile.type == TileType.Grass or curr_tile.type == TileType.Food:
             BOARD.Grid[self.col][self.row] = MapTile(
@@ -58,7 +59,7 @@ class Character(MapTile):
             return True
         return False
 
-    # This function is how a character moves around in a certain direction
+    # This function is how a cell moves around in a certain direction
     def move(self, direction):
         is_dead = False
         if direction == "UP":
@@ -79,7 +80,7 @@ class Character(MapTile):
         return is_dead
 
     def choose_direction(self):
-        if self.is_dead: 
+        if self.is_dead:
             return True
         # search for food in sight
         for i in range(0, self.sight+1):
@@ -93,7 +94,7 @@ class Character(MapTile):
         num = random.randint(0, 3)
         return self.move(int_to_direction(num))
 
-    # Checks if anything is on top of the grass in the direction that the character wants to move.
+    # Checks if anything is on top of the grass in the direction that the cell wants to move.
     # Used in the move function
 
     def collides(self, direction):
@@ -119,19 +120,12 @@ class Character(MapTile):
 
     def reproduce(self):
         col, row = self.adjasent_free_space()
-        if col < 0:
-            return
-        new_size = 1 if int(self.size/2) == 0 else int(self.size/2)
-        self.size = new_size
-        if self.times_replicated > C.COLOR_CHANGE:
-            self.color = get_rand_color()
-            self.times_replicated = 0
 
         self.hunger = int(100-(100-self.hunger)/2)
-        new_cell = Character("cell" + str(Map.index), 0,
-                             col, row, new_size, self.hunger, C.DEFAULT_SIGHT, self.color)
-        self.times_replicated += 1
-        new_cell.times_replicated = self.times_replicated
+        new_cell = Cell("cell" + str(Map.index), self.food_to_repro,
+                        col, row, self.size, self.hunger, self.sight, self.color)
+        if random.randint(1, C.MUTATION_CHANCE) == 1:
+            new_cell.mutate_properties()
         BOARD.Grid[col][row] = new_cell
         BOARD.index += 1
         BOARD.num_cells += 1
@@ -143,6 +137,35 @@ class Character(MapTile):
                     if BOARD.Grid[self.col + i][self.row + j].type == TileType.Grass:
                         return self.col + i, self.row + j
         return -1, -1
+
+    def mutate_properties(self):
+        switcher = {
+            0: get_sight(self),
+            1: get_size(self),
+            2: get_food_to_repro(self),
+        }
+        while True:
+            prop_inc = random.randint(0, 2)
+            prop_dec = random.randint(0, 2)
+            if prop_inc == prop_dec:
+                continue
+            inc_curr_value, inc_max, inc_min, inc_name, v_1 = switcher.get(prop_inc, lambda: "Invalid inc")
+            dec_curr_value, dec_max, dec_min, dec_name, v_2 = switcher.get(prop_dec, lambda: "Invalid dec")
+            if (inc_curr_value + v_2 > inc_max or inc_curr_value + v_2 < inc_min
+                    or dec_curr_value - v_1 > dec_max or dec_curr_value - v_1 < dec_min):
+                continue
+            self.__setattr__(inc_name, self.__getattribute__(inc_name) + v_2)
+            self.__setattr__(dec_name, self.__getattribute__(dec_name) - v_1)
+            break
+
+def get_sight(cell: Cell):
+    return cell.sight, C.MAX_SIGHT, C.MIN_SIGHT, "sight", 1
+
+def get_size(cell: Cell):
+    return cell.size, C.MAX_SIZE, C.MIN_SIZE, "size", 1
+
+def get_food_to_repro(cell: Cell):
+    return cell.food_to_repro, C.MAX_FOOD_TO_REPRO, C.MIN_FOOD_TO_REPRO, "food_to_repro", -2
 
 
 # The main class; where the action happens
@@ -165,8 +188,8 @@ class Map(object):
 
     RandomColumn = random.randint(0, C.MAP_SIZE - 1)
     RandomRow = random.randint(0, C.MAP_SIZE - 1)
-    Hero = Character("Hero", 0, RandomColumn, RandomRow,
-                     C.INIT_SIZE, C.INIT_HUNGER, C.DEFAULT_SIGHT, C.BLUE2)
+    Hero = Cell("Hero", C.INIT_FOOD_TO_REPRO, RandomColumn, RandomRow,
+                C.INIT_SIZE, C.INIT_HUNGER, C.INIT_SIGHT, C.BLUE2)
     num_cells += 1
     Grid[RandomColumn][RandomRow] = Hero
 
@@ -202,7 +225,9 @@ def get_close_array(sight):
 
 def has_food(cell, col, row):
     if col >= 0 and col < C.MAP_SIZE and row >= 0 and row <= C.MAP_SIZE:
-        if (BOARD.Grid[col][row].type == TileType.Food) or (BOARD.Grid[col][row].type == TileType.Food and cell.size - BOARD.Grid[col][row] >= C.EATING_SIZE):
+        if ((BOARD.Grid[col][row].type == TileType.Food)
+                or (BOARD.Grid[col][row].type == TileType.Cell
+                    and cell.size - BOARD.Grid[col][row].size >= C.EATING_SIZE)):
             return True
     return False
 

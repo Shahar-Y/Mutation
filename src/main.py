@@ -1,9 +1,10 @@
-from typing import List
 import time
+import math
+from typing import List
 import pygame
 from enums import TileType
+from board import Cell, BOARD
 import constants as C
-from board import Character, BOARD
 
 pygame.init()                                 # start up dat pygame
 # for frame-rate or something? still not very sure
@@ -12,7 +13,7 @@ SCREEN = pygame.display.set_mode(
     [C.WINDOW_SIZE, C.WINDOW_SIZE])  # making the window
 
 def size_to_percentage(num):
-    return (4/5) * (1 - 2/(num+2))
+    return (0.9) * math.sqrt(num)/math.sqrt(C.MAX_SIZE)
 
 def int_to_direction(num):
     if num % 4 == 0:
@@ -24,9 +25,6 @@ def int_to_direction(num):
     if num % 4 == 3:
         return "DOWN"
     return "LEFT"
-
-def sortSize(cell):
-    return cell.size
 
 def run_game():
     done = False
@@ -43,10 +41,10 @@ def run_game():
             for row in range(C.MAP_SIZE):
                 if BOARD.Grid[col][row].type == TileType.Cell:
                     cells.append(BOARD.Grid[col][row])
-        cells.sort(key=sortSize, reverse=True);
+        cells.sort(key=lambda cell: cell.size, reverse=True)
 
         # all cells make a step and those who starved are added to the dead pool
-        dead_pool: List[Character] = []
+        dead_pool: List[Cell] = []
         for i in range(len(cells)):
             is_dead = cells[i].choose_direction()
             if is_dead:
@@ -85,13 +83,7 @@ def run_game():
                     color = C.GRASS
                 if curr_tile.type == TileType.Cell:
                     is_cell = True
-                    color = curr_tile.color
-                    # if curr_tile.health <= 0:
-                    #     color = C.BLUE1
-                    # elif curr_tile.health <= C.REPRO_HEALTH/3:
-                    #     color = C.BLUE2
-                    # elif curr_tile.health <= 2*C.REPRO_HEALTH/3:
-                    #     color = C.BLUE3
+                    color = get_color_by_features(curr_tile)
                 if curr_tile.type == TileType.Food:
                     color = C.FOOD_COLOR
 
@@ -138,6 +130,12 @@ def run_game():
         # Honestly not sure what this does, but it breaks if I remove it
         pygame.display.flip()
 
+def get_color_by_features(cell: Cell):
+    return (
+        int(cell.size*25),
+        int(cell.sight*25),
+        int((C.MAX_FOOD_TO_REPRO - cell.food_to_repro + 1)*2.5*25)
+        )
 
 BOARD.spread_food(C.FOOD_DROPPED * 2)
 run_game()
