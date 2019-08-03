@@ -1,9 +1,10 @@
-from typing import List
 import time
+import math
+from typing import List
 import pygame
 from enums import TileType
-import constants as C
 from board import Cell, BOARD
+import constants as C
 
 pygame.init()                                 # start up dat pygame
 # for frame-rate or something? still not very sure
@@ -12,7 +13,7 @@ SCREEN = pygame.display.set_mode(
     [C.WINDOW_SIZE, C.WINDOW_SIZE])  # making the window
 
 def size_to_percentage(num):
-    return (4/5) * (1 - 2/(num+2))
+    return (0.9) * math.sqrt(num)/math.sqrt(C.MAX_SIZE)
 
 def int_to_direction(num):
     if num % 4 == 0:

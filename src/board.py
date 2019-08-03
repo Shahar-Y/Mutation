@@ -80,7 +80,7 @@ class Cell(MapTile):
         return is_dead
 
     def choose_direction(self):
-        if self.is_dead: 
+        if self.is_dead:
             return True
         # search for food in sight
         for i in range(0, self.sight+1):
@@ -123,12 +123,9 @@ class Cell(MapTile):
 
         self.hunger = int(100-(100-self.hunger)/2)
         new_cell = Cell("cell" + str(Map.index), self.food_to_repro,
-                             col, row, self.size, self.hunger, self.sight, self.color)
+                        col, row, self.size, self.hunger, self.sight, self.color)
         if random.randint(1, C.MUTATION_CHANCE) == 1:
-            print("mutation!")
-            print("size: ", self.size, ", sight: ", self.sight, ", ftr: ", self.food_to_repro)
             new_cell.mutate_properties()
-            print("size: ", new_cell.size, ", sight: ", new_cell.sight, ", ftr: ", new_cell.food_to_repro)
         BOARD.Grid[col][row] = new_cell
         BOARD.index += 1
         BOARD.num_cells += 1
@@ -140,22 +137,22 @@ class Cell(MapTile):
                     if BOARD.Grid[self.col + i][self.row + j].type == TileType.Grass:
                         return self.col + i, self.row + j
         return -1, -1
-    
+
     def mutate_properties(self):
         switcher = {
             0: get_sight(self),
             1: get_size(self),
             2: get_food_to_repro(self),
         }
-        while(True):
+        while True:
             prop_inc = random.randint(0, 2)
             prop_dec = random.randint(0, 2)
             if prop_inc == prop_dec:
                 continue
             inc_curr_value, inc_max, inc_min, inc_name, v_1 = switcher.get(prop_inc, lambda: "Invalid inc")
             dec_curr_value, dec_max, dec_min, dec_name, v_2 = switcher.get(prop_dec, lambda: "Invalid dec")
-            if(inc_curr_value + v_2 > inc_max or inc_curr_value + v_2 < inc_min
-                or dec_curr_value - v_1 > dec_max or dec_curr_value - v_1 < dec_min):
+            if (inc_curr_value + v_2 > inc_max or inc_curr_value + v_2 < inc_min
+                    or dec_curr_value - v_1 > dec_max or dec_curr_value - v_1 < dec_min):
                 continue
             self.__setattr__(inc_name, self.__getattribute__(inc_name) + v_2)
             self.__setattr__(dec_name, self.__getattribute__(dec_name) - v_1)
@@ -169,7 +166,7 @@ def get_size(cell: Cell):
 
 def get_food_to_repro(cell: Cell):
     return cell.food_to_repro, C.MAX_FOOD_TO_REPRO, C.MIN_FOOD_TO_REPRO, "food_to_repro", -2
-            
+
 
 # The main class; where the action happens
 class Map(object):
@@ -228,7 +225,9 @@ def get_close_array(sight):
 
 def has_food(cell, col, row):
     if col >= 0 and col < C.MAP_SIZE and row >= 0 and row <= C.MAP_SIZE:
-        if (BOARD.Grid[col][row].type == TileType.Food) or (BOARD.Grid[col][row].type == TileType.Food and cell.size - BOARD.Grid[col][row].size >= C.EATING_SIZE):
+        if ((BOARD.Grid[col][row].type == TileType.Food)
+                or (BOARD.Grid[col][row].type == TileType.Cell
+                    and cell.size - BOARD.Grid[col][row].size >= C.EATING_SIZE)):
             return True
     return False
 
