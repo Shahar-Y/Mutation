@@ -149,8 +149,8 @@ class Cell(MapTile):
             prop_dec = random.randint(0, 2)
             if prop_inc == prop_dec:
                 continue
-            inc_curr_value, inc_max, inc_min, inc_name, v_1 = switcher.get(prop_inc, lambda: "Invalid inc")
-            dec_curr_value, dec_max, dec_min, dec_name, v_2 = switcher.get(prop_dec, lambda: "Invalid dec")
+            inc_curr_value, inc_max, inc_min, inc_name, v_1 = switcher.get(prop_inc, "Invalid inc")
+            dec_curr_value, dec_max, dec_min, dec_name, v_2 = switcher.get(prop_dec, "Invalid dec")
             if (inc_curr_value + v_2 > inc_max or inc_curr_value + v_2 < inc_min
                     or dec_curr_value - v_1 > dec_max or dec_curr_value - v_1 < dec_min):
                 continue
@@ -189,12 +189,12 @@ class Map(object):
     RandomColumn = random.randint(0, C.MAP_SIZE - 1)
     RandomRow = random.randint(0, C.MAP_SIZE - 1)
     Hero = Cell("Hero", C.INIT_FOOD_TO_REPRO, RandomColumn, RandomRow,
-                C.INIT_SIZE, C.INIT_HUNGER, C.INIT_SIGHT, C.BLUE2)
+                C.INIT_SIZE, C.INIT_HUNGER, C.INIT_SIGHT, 0)
     num_cells += 1
     Grid[RandomColumn][RandomRow] = Hero
 
     def spread_food(self, num):
-        for i in range(num):
+        for _ in range(num):
             tries = 0
             while tries < 100:
                 tries += 1

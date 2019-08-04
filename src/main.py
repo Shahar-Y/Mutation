@@ -13,7 +13,7 @@ SCREEN = pygame.display.set_mode(
     [C.WINDOW_SIZE, C.WINDOW_SIZE])  # making the window
 
 def size_to_percentage(num):
-    return (0.9) * math.sqrt(num)/math.sqrt(C.MAX_SIZE)
+    return math.sqrt(num)/math.sqrt(C.MAX_SIZE)
 
 def int_to_direction(num):
     if num % 4 == 0:
@@ -29,9 +29,11 @@ def int_to_direction(num):
 def run_game():
     done = False
     loop_counter = 0
+    food_dropped = C.FOOD_DROPPED
+    game_speed = C.INIT_GAME_SPEED
     while not done:     # Main pygame loop
         loop_counter += 1
-        time.sleep(1 / C.GAME_SPEED)
+        time.sleep(0.01*(C.MAX_GAME_SPEED-game_speed))
 
         print(str(BOARD.num_cells))
 
@@ -45,10 +47,10 @@ def run_game():
 
         # all cells make a step and those who starved are added to the dead pool
         dead_pool: List[Cell] = []
-        for i in range(len(cells)):
-            is_dead = cells[i].choose_direction()
+        for _, cell in enumerate(cells):
+            is_dead = cell.choose_direction()
             if is_dead:
-                dead_pool.append(cells[i])
+                dead_pool.append(cell)
 
         # kill all of the starved cells
         for cell in dead_pool:
@@ -56,7 +58,7 @@ def run_game():
 
         # add food if needed
         if loop_counter % C.DROPPING_PACE == 0:
-            BOARD.spread_food(C.FOOD_DROPPED)
+            BOARD.spread_food(food_dropped)
 
         # catching events
         for event in pygame.event.get():
@@ -68,9 +70,31 @@ def run_game():
                 # translating mouse position into rows and columns
                 col = pos[0] // (C.TILE_WIDTH + C.TILE_MARGIN)
                 row = pos[1] // (C.TILE_HEIGHT + C.TILE_MARGIN)
+                if BOARD.Grid[col][row].type == TileType.Grass:
+                    t_rex = Cell("t_rex", 100000, col, row,
+                                 15, C.INIT_HUNGER, 15, C.BLACK)
+                    BOARD.num_cells += 1
+                    BOARD.Grid[col][row] = t_rex
                 print(str(row) + ", " + str(col))
                 # print stuff that inhabits that square
                 print(str(BOARD.Grid[col][row].name))
+
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    if game_speed > 0:
+                        game_speed -= 1
+                    print("game speed: ", game_speed)
+                if event.key == pygame.K_RIGHT:
+                    if game_speed < C.MAX_GAME_SPEED:
+                        game_speed += 1
+                    print("game speed: ", game_speed)
+                if event.key == pygame.K_UP:
+                    food_dropped += 1
+                    print("food dropped: ", food_dropped)
+                if event.key == pygame.K_DOWN:
+                    if food_dropped > 0:
+                        food_dropped -= 1
+                    print("food dropped: ", food_dropped)
 
         # print the grid
         color = C.BLACK
@@ -83,7 +107,7 @@ def run_game():
                     color = C.GRASS
                 if curr_tile.type == TileType.Cell:
                     is_cell = True
-                    color = get_color_by_features(curr_tile)
+                    color = curr_tile.color if curr_tile.color else get_color_by_features(curr_tile)
                 if curr_tile.type == TileType.Food:
                     color = C.FOOD_COLOR
 
@@ -103,15 +127,14 @@ def run_game():
                         ]
                     )
                     cell_percentage = size_to_percentage(curr_tile.size)
-                    pygame.draw.rect(
+                    pygame.draw.circle(
                         SCREEN,
                         color,
                         [
-                            row_start + C.TILE_WIDTH * (1 - cell_percentage)/2,
-                            col_start + C.TILE_HEIGHT * (1 - cell_percentage)/2,
-                            C.TILE_WIDTH * cell_percentage,
-                            C.TILE_HEIGHT * cell_percentage
-                        ]
+                            int(row_start + C.TILE_WIDTH/2),
+                            int(col_start + C.TILE_HEIGHT/2),
+                        ],
+                        int(C.TILE_WIDTH*cell_percentage/2)
                     )
                 else:
                     pygame.draw.rect(
