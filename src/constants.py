@@ -1,5 +1,5 @@
 # board-related constants
-MAP_SIZE = 40                                  # how many tiles in either direction of grid
+MAP_SIZE = 50                                  # how many tiles in either direction of grid
 TILE_WIDTH = 15                                # pixel sizes for grid squares
 TILE_HEIGHT = TILE_WIDTH
 TILE_MARGIN = 1
@@ -10,8 +10,10 @@ FOOD_DROPPED = 10
 INIT_GAME_SPEED = 5
 MAX_GAME_SPEED = 10
 DONE = False                                    # variable to keep track if window is open
-
+PRINTING_PACE = 5
 DROPPING_PACE = 2
+TEXT_SIZE = 15
+TEXT_FONT = 'Comic Sans MS'
 
 # cell parameters
 INIT_HUNGER = 0
