@@ -1,13 +1,14 @@
 # board-related constants
-MAP_SIZE = 60                                  # how many tiles in either direction of grid
-TILE_WIDTH = 10                                # pixel sizes for grid squares
+MAP_SIZE = 40                                  # how many tiles in either direction of grid
+TILE_WIDTH = 15                                # pixel sizes for grid squares
 TILE_HEIGHT = TILE_WIDTH
 TILE_MARGIN = 1
 WINDOW_SIZE = (TILE_WIDTH + TILE_MARGIN) * MAP_SIZE + TILE_MARGIN
 
 # game parameters
-FOOD_DROPPED = int(30)
-GAME_SPEED = 50
+FOOD_DROPPED = 10
+INIT_GAME_SPEED = 5
+MAX_GAME_SPEED = 10
 DONE = False                                    # variable to keep track if window is open
 
 DROPPING_PACE = 2
@@ -21,7 +22,7 @@ COLOR_CHANGE = 4
 MUTATION_POINTS = 15
 MUTATION_CHANCE = 3
 
-INIT_SIZE = 1
+INIT_SIZE = 5
 MAX_SIZE = 10
 MIN_SIZE = 1
 SIZE_VALUE = 1
@@ -31,12 +32,12 @@ MAX_FOOD_WORTH = 15
 MIN_FOOD_WORTH = 5
 FOOD_WORTH_VALUE = 1
 
-INIT_SIGHT = 10
+INIT_SIGHT = 5
 MAX_SIGHT = 10
 MIN_SIGHT = 1
 SIGHT_VALUE = 1
 
-INIT_FOOD_TO_REPRO = 3
+INIT_FOOD_TO_REPRO = 4
 MAX_FOOD_TO_REPRO = 4
 MIN_FOOD_TO_REPRO = 1
 FOOD_TO_REPRO_VALUE = -2
@@ -52,4 +53,5 @@ BLUE = (0, 0, 255)
 BLUE3 = (0, 50, 250)
 BLUE2 = (0, 150, 250)
 BLUE1 = (0, 220, 250)
+BLACK = (0, 0, 0)
 MAX_RGB = 255
