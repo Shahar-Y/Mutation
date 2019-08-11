@@ -10,7 +10,10 @@ pygame.init()                                 # start up dat pygame
 # for frame-rate or something? still not very sure
 CLOCK = pygame.time.Clock()
 SCREEN = pygame.display.set_mode(
-    [C.WINDOW_SIZE, C.WINDOW_SIZE])  # making the window
+    [C.WINDOW_SIZE, C.WINDOW_SIZE + C.TEXT_SIZE*4])  # making the window
+
+pygame.font.init()
+FONT = pygame.font.SysFont(C.TEXT_FONT, C.TEXT_SIZE)
 
 def size_to_percentage(num):
     return math.sqrt(num)/math.sqrt(C.MAX_SIZE)
@@ -35,7 +38,8 @@ def run_game():
         loop_counter += 1
         time.sleep(0.01*(C.MAX_GAME_SPEED-game_speed))
 
-        print(str(BOARD.num_cells))
+        if loop_counter % C.PRINTING_PACE == 0:
+            print(str(BOARD.num_cells))
 
         # get all cells on board
         cells = []
@@ -45,12 +49,27 @@ def run_game():
                     cells.append(BOARD.Grid[col][row])
         cells.sort(key=lambda cell: cell.size, reverse=True)
 
-        # all cells make a step and those who starved are added to the dead pool
         dead_pool: List[Cell] = []
+        total_size = 0
+        total_sight = 0
+        total_ftr = 0
+        # all cells make a step and those who starved are added to the dead pool
         for _, cell in enumerate(cells):
+            total_size += cell.size
+            total_sight += cell.sight
+            total_ftr += cell.food_to_repro
             is_dead = cell.choose_direction()
             if is_dead:
                 dead_pool.append(cell)
+
+        # get statistics
+        avg_size = 0
+        avg_sight = 0
+        avg_ftr = 0
+        if BOARD.num_cells:
+            avg_size = total_size/BOARD.num_cells
+            avg_sight = total_sight/BOARD.num_cells
+            avg_ftr = total_ftr/BOARD.num_cells
 
         # kill all of the starved cells
         for cell in dead_pool:
@@ -149,16 +168,34 @@ def run_game():
                     )
 
         CLOCK.tick(60)      # Limit to 60 fps or something
-
+        print_stats(food_dropped, game_speed, avg_size, avg_sight, avg_ftr)
         # Honestly not sure what this does, but it breaks if I remove it
         pygame.display.flip()
 
 def get_color_by_features(cell: Cell):
     return (
         int(cell.size*25),
-        int(cell.sight*25),
-        int((C.MAX_FOOD_TO_REPRO - cell.food_to_repro + 1)*2.5*25)
+        int(0),
+        int(cell.sight*25)
         )
+
+def print_stats(food_dropped, game_speed, avg_size, avg_sight, avg_ftr):
+    textsurface = FONT.render('Alive: ' + str(BOARD.num_cells), False, (255, 255, 255))
+    SCREEN.blit(textsurface, (5, C.MAP_SIZE * (C.TILE_WIDTH + C.TILE_MARGIN)))
+    textsurface = FONT.render('Food: ' + str(food_dropped), False, (255, 255, 255))
+    SCREEN.blit(textsurface, (5, C.MAP_SIZE * (C.TILE_WIDTH + C.TILE_MARGIN) + C.TEXT_SIZE + 3))
+    textsurface = FONT.render('Speed: ' + str(game_speed), False, (255, 255, 255))
+    SCREEN.blit(textsurface, (5, C.MAP_SIZE * (C.TILE_WIDTH + C.TILE_MARGIN) + 2*C.TEXT_SIZE + 6))
+    textsurface = FONT.render('Avg. Size: ' + str(round(avg_size, 2)), False, (255, 255, 255))
+    SCREEN.blit(textsurface, (200, C.MAP_SIZE * (C.TILE_WIDTH + C.TILE_MARGIN)))
+    textsurface = FONT.render('Avg. Sight: ' + str(round(avg_sight, 2)), False, (255, 255, 255))
+    SCREEN.blit(textsurface, (200, C.MAP_SIZE * (C.TILE_WIDTH + C.TILE_MARGIN) + C.TEXT_SIZE + 3))
+    textsurface = FONT.render('Avg. FTR: ' + str(round(avg_ftr, 2)), False, (255, 255, 255))
+    SCREEN.blit(textsurface, (200, C.MAP_SIZE * (C.TILE_WIDTH + C.TILE_MARGIN) + 2*C.TEXT_SIZE + 6))
+    textsurface = FONT.render('Total Lived: ' + str(BOARD.total_lived), False, (255, 255, 255))
+    SCREEN.blit(textsurface, (400, C.MAP_SIZE * (C.TILE_WIDTH + C.TILE_MARGIN)))
+    textsurface = FONT.render('Total Died: ' + str(BOARD.total_died), False, (255, 255, 255))
+    SCREEN.blit(textsurface, (400, C.MAP_SIZE * (C.TILE_WIDTH + C.TILE_MARGIN) + C.TEXT_SIZE + 3))
 
 BOARD.spread_food(C.FOOD_DROPPED * 2)
 run_game()
