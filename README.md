@@ -8,4 +8,4 @@
 change parameters under src/costants.py
 
 ### Example for the running project:
-![Evolution Demo](evolution_demo.gif)
+![Evolution Demo](game_demo.gif)
