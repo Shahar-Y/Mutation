@@ -12,8 +12,8 @@ MAX_GAME_SPEED = 10
 DONE = False                                    # variable to keep track if window is open
 PRINTING_PACE = 5
 DROPPING_PACE = 2
-TEXT_SIZE = 15
-TEXT_FONT = 'Comic Sans MS'
+TEXT_SIZE = 22
+TEXT_FONT = 'Times New Roman'
 
 # cell parameters
 INIT_HUNGER = 0

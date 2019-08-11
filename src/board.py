@@ -116,6 +116,7 @@ class Cell(MapTile):
         BOARD.Grid[self.col][self.row] = MapTile(
             "Grass", self.col, self.row, TileType.Grass)
         BOARD.num_cells -= 1
+        BOARD.total_died += 1
         del self
 
     def reproduce(self):
@@ -129,6 +130,7 @@ class Cell(MapTile):
         BOARD.Grid[col][row] = new_cell
         BOARD.index += 1
         BOARD.num_cells += 1
+        BOARD.total_lived += 1
 
     def adjasent_free_space(self):
         for i in [-1, 0, 1]:
@@ -170,6 +172,8 @@ def get_food_to_repro(cell: Cell):
 
 # The main class; where the action happens
 class Map(object):
+    total_lived = 0
+    total_died = 0
     index = 1
     num_food = 0
     num_cells = 0
@@ -190,6 +194,7 @@ class Map(object):
     RandomRow = random.randint(0, C.MAP_SIZE - 1)
     Hero = Cell("Hero", C.INIT_FOOD_TO_REPRO, RandomColumn, RandomRow,
                 C.INIT_SIZE, C.INIT_HUNGER, C.INIT_SIGHT, 0)
+    total_lived += 1
     num_cells += 1
     Grid[RandomColumn][RandomRow] = Hero
 
