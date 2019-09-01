@@ -6,6 +6,7 @@ import pygame
 import random
 import os
 
+SIZE = 800
 # Notice here that Ball inherits from Sprite so it gets
 # all the code associated with Sprites which is quite
 # a bit.
@@ -29,13 +30,15 @@ class Ball(pygame.sprite.Sprite):
         return self.rect.y
 
     def move(self):
-        if self.rect.x + self.dx > 600:
+        if self.rect.x + self.dx > SIZE:
+            print(self.rect.x, ', ', self.dx, ', ', self.rect.x+self.dx)
             self.dx = -self.dx
-        if self.rect.y + self.dy > 600:
+        if self.rect.y + self.dy > SIZE:
             self.dy = -self.dy
         if self.rect.y + self.dy < 0:
             self.dy = -self.dy
         if self.rect.x + self.dx < 0:
+            print(self.rect.x, ', ', self.dx, ', ', self.rect.x+self.dx)
             self.dx = -self.dx
         self.rect.x += self.dx
         self.rect.y += self.dy
@@ -44,7 +47,7 @@ class App:
     def __init__(self):
         self.running = True
         self.screen = None
-        self.size = self.width, self.height = 600, 600
+        self.size = self.width, self.height = SIZE, SIZE
 
 
     def on_init(self):
@@ -54,8 +57,8 @@ class App:
         self.running = True
 
         # A surface is a solid colored box. In this case it is green.
-        self.bgImg = pygame.Surface((600,600))
-        self.bgImg.fill((0,255,0))
+        self.bgImg = pygame.Surface((SIZE,SIZE))
+        self.bgImg.fill((100,255,130))
         # blit displays it on the screen (actually in the buffer).
         self.screen.blit(self.bgImg,(0,0))
 
@@ -68,9 +71,9 @@ class App:
 
         # The ball is one of the sprites. The self.balls list is the list of balls
         # bouncing on the screen.
-        for i in range(10):
+        for i in range(1):
             ball = Ball(random.uniform(10,590),random.uniform(10,590), \
-               random.uniform(-6,6),random.uniform(-6,6))
+               random.uniform(-2,2),random.uniform(-2,2))
             self.sprites.add(ball)
 
         return True
@@ -82,9 +85,11 @@ class App:
             self.running = False
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
-                ball = Ball(random.uniform(10,590),random.uniform(10,590), \
+                ball = Ball(random.uniform(0,500),random.uniform(0,500), \
                    random.uniform(-6,6),random.uniform(-6,6))
                 self.sprites.add(ball)
+            if event.key == pygame.K_DOWN:
+                self.sprites[0].dx -= 1
 
     def on_loop(self):
         # The on_loop is called below in the on_execute. This handles the changes
