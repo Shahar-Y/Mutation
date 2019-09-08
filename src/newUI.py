@@ -1,17 +1,27 @@
 # Code source: https://techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/optimization/
 import pygame
 import os
+from PIL import Image
 pygame.init()
 
-win = pygame.display.set_mode((1000,1000))
-walkRight = [pygame.image.load(os.path.join(os.getcwd(), 'src/images/arab.png'))]
-walkLeft = [pygame.image.load(os.path.join(os.getcwd(), 'src/images/arab.png'))]
+BORDERS = 1000
+win = pygame.display.set_mode((BORDERS,BORDERS))
+img = Image.open(os.path.join(os.getcwd(), 'src/images/cell.png'))
+basewidth = 60
+wpercent = (basewidth/float(img.size[0]))
+hsize = int((float(img.size[1])*float(wpercent)))
+img = img.resize((basewidth,hsize), Image.ANTIALIAS)
+img.save(os.path.join(os.getcwd(), 'src/images/cell.png')) 
+
+
+walkRight = [pygame.image.load(os.path.join(os.getcwd(), 'src/images/cell.png'))]
+walkLeft = [pygame.image.load(os.path.join(os.getcwd(), 'src/images/cell.png'))]
 bg = pygame.image.load(os.path.join(os.getcwd(), 'src/images/water2.png'))
-char = pygame.image.load(os.path.join(os.getcwd(), 'src/images/arab.png'))
+char = pygame.image.load(os.path.join(os.getcwd(), 'src/images/cell.png'))
 clock = pygame.time.Clock()
 
 
-class player(object):
+class Cell(object):
     def __init__(self,x,y,width,height):
         self.x = x
         self.y = y
@@ -47,10 +57,10 @@ def redrawGameWindow():
 
 
 #mainloop
-man = player(200, 410, 64,64)
+man = Cell(600, 500, 50,10)
 run = True
 while run:
-    clock.tick(27)
+    clock.tick(50)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -58,11 +68,11 @@ while run:
 
     keys = pygame.key.get_pressed()
 
-    if keys[pygame.K_LEFT] and man.x > man.vel:
+    if keys[pygame.K_LEFT] and man.x > 0:
         man.x -= man.vel
         man.left = True
         man.right = False
-    elif keys[pygame.K_RIGHT] and man.x < 500 - man.width - man.vel:
+    elif keys[pygame.K_RIGHT] and man.x < BORDERS - man.width - man.vel:
         man.x += man.vel
         man.right = True
         man.left = False
