@@ -4,7 +4,7 @@ import os
 from PIL import Image
 pygame.init()
 
-BORDERS = 1000
+BORDERS = 900
 win = pygame.display.set_mode((BORDERS,BORDERS))
 img = Image.open(os.path.join(os.getcwd(), 'src/images/cell.png'))
 basewidth = 60
@@ -20,6 +20,9 @@ bg = pygame.image.load(os.path.join(os.getcwd(), 'src/images/water2.png'))
 char = pygame.image.load(os.path.join(os.getcwd(), 'src/images/cell.png'))
 clock = pygame.time.Clock()
 
+rect1 = pygame.Rect(0,0,10,10)
+rect2 = pygame.Rect(9,9,10,10)
+print(str(rect1.colliderect(rect2)))
 
 class Cell(object):
     def __init__(self,x,y,width,height):
@@ -28,9 +31,6 @@ class Cell(object):
         self.width = width
         self.height = height
         self.vel = 5
-        self.isJump = False
-        self.left = False
-        self.right = False
         self.walkCount = 0
         self.jumpCount = 10
 
@@ -38,12 +38,12 @@ class Cell(object):
         if self.walkCount + 1 >= 27:
             self.walkCount = 0
 
-        if self.left:
-            win.blit(walkLeft[0], (self.x,self.y))
-            self.walkCount += 1
-        elif self.right:
-            win.blit(walkRight[0], (self.x,self.y))
-            self.walkCount +=1
+        # if self.left:
+        #     win.blit(walkLeft[0], (self.x,self.y))
+        #     self.walkCount += 1
+        # elif self.right:
+        #     win.blit(walkRight[0], (self.x,self.y))
+        #     self.walkCount +=1
         else:
             win.blit(char, (self.x,self.y))
 
@@ -51,13 +51,13 @@ class Cell(object):
 
 def redrawGameWindow():
     win.blit(bg, (0,0))
-    man.draw(win)
+    cell.draw(win)
     
     pygame.display.update()
 
 
 #mainloop
-man = Cell(600, 500, 50,10)
+cell = Cell(600, 500, 60,60)
 run = True
 while run:
     clock.tick(50)
@@ -68,35 +68,23 @@ while run:
 
     keys = pygame.key.get_pressed()
 
-    if keys[pygame.K_LEFT] and man.x > 0:
-        man.x -= man.vel
-        man.left = True
-        man.right = False
-    elif keys[pygame.K_RIGHT] and man.x < BORDERS - man.width - man.vel:
-        man.x += man.vel
-        man.right = True
-        man.left = False
-    else:
-        man.right = False
-        man.left = False
-        man.walkCount = 0
-        
-    if not(man.isJump):
-        if keys[pygame.K_SPACE]:
-            man.isJump = True
-            man.right = False
-            man.left = False
-            man.walkCount = 0
-    else:
-        if man.jumpCount >= -10:
-            neg = 1
-            if man.jumpCount < 0:
-                neg = -1
-            man.y -= (man.jumpCount ** 2) * 0.5 * neg
-            man.jumpCount -= 1
-        else:
-            man.isJump = False
-            man.jumpCount = 10
+    if keys[pygame.K_LEFT] and cell.x > 0:
+        cell.x -= cell.vel
+    if keys[pygame.K_RIGHT] and cell.x < BORDERS - cell.width:
+        cell.x += cell.vel
+    if keys[pygame.K_UP] and cell.y > 0:
+        cell.y -= cell.vel
+    if keys[pygame.K_DOWN] and cell.y < BORDERS - cell.height:
+        cell.y += cell.vel
+    
+    # if cell.jumpCount >= -10:
+    #     neg = 1
+    #     if cell.jumpCount < 0:
+    #         neg = -1
+    #     cell.y -= (cell.jumpCount ** 2) * 0.5 * neg
+    #     cell.jumpCount -= 1
+    # else:
+    #     cell.jumpCount = 10
             
     redrawGameWindow()
 
