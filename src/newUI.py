@@ -35,17 +35,7 @@ class Cell(object):
         self.jumpCount = 10
 
     def draw(self, win):
-        if self.walkCount + 1 >= 27:
-            self.walkCount = 0
-
-        # if self.left:
-        #     win.blit(walkLeft[0], (self.x,self.y))
-        #     self.walkCount += 1
-        # elif self.right:
-        #     win.blit(walkRight[0], (self.x,self.y))
-        #     self.walkCount +=1
-        else:
-            win.blit(char, (self.x,self.y))
+        win.blit(char, (self.x,self.y))
 
 
 
@@ -76,15 +66,6 @@ while run:
         cell.y -= cell.vel
     if keys[pygame.K_DOWN] and cell.y < BORDERS - cell.height:
         cell.y += cell.vel
-    
-    # if cell.jumpCount >= -10:
-    #     neg = 1
-    #     if cell.jumpCount < 0:
-    #         neg = -1
-    #     cell.y -= (cell.jumpCount ** 2) * 0.5 * neg
-    #     cell.jumpCount -= 1
-    # else:
-    #     cell.jumpCount = 10
             
     redrawGameWindow()
 
