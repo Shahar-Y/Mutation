@@ -2,6 +2,9 @@
 import pygame
 import os
 from PIL import Image
+from enums import Step, int_to_step
+import random
+
 pygame.init()
 
 BORDERS = 900
@@ -33,9 +36,28 @@ class Cell(object):
         self.vel = 5
         self.walkCount = 0
         self.jumpCount = 10
+        self.last_step = Step.UP
 
     def draw(self, win):
         win.blit(char, (self.x,self.y))
+
+    def move(self, board):
+        change_dir = random.randint(0,10)
+        if change_dir == 0:
+            n = random.randint(0,3)
+            self.last_step = int_to_step(n)
+
+        if self.last_step == Step.LEFT and cell.x > 0:
+            cell.x -= cell.vel
+        if self.last_step == Step.RIGHT and cell.x < BORDERS - cell.width:
+            cell.x += cell.vel
+        if self.last_step == Step.UP and cell.y > 0:
+            cell.y -= cell.vel
+        if self.last_step == Step.DOWN and cell.y < BORDERS - cell.height:
+            cell.y += cell.vel
+        
+
+
 
 
 
@@ -57,6 +79,7 @@ while run:
             run = False
 
     keys = pygame.key.get_pressed()
+    cell.move([])
 
     if keys[pygame.K_LEFT] and cell.x > 0:
         cell.x -= cell.vel
