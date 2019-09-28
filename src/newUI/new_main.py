@@ -1,6 +1,7 @@
 # Code source: https://techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/optimization/
 import random
 import os
+import math
 import pygame
 from enums import Step, int_to_step
 import constants as C
@@ -26,30 +27,41 @@ class Cell(object):
     def __init__(self, x, y, width, height):
         self.x = x
         self.y = y
+        self.size = 20
         self.width = width
         self.height = height
-        self.vel = 4
+        self.vel = 10
         self.direction = Step.UP
 
     def draw(self):
         WIN.blit(CHAR, (self.x, self.y))
 
+    def check_collision(self, food):
+        d = math.hypot(self.x - food.x, self.y - food.y)
+        if d < self.size + food.size:
+            print("EATEN! d=", d, " ", self.size, " + ", food.size)
+
     def move(self):
 
+        dirs = []
+
         if food.x < self.x:
-            self.direction = Step.LEFT
-        elif food.x > self.x:
-            self.direction = Step.RIGHT
-        elif food.y < self.y:
-            self.direction = Step.UP
-        elif food.y > self.y:
-            self.direction = Step.DOWN
-
-        change_dir = random.randint(0, 5)
-        if change_dir == 0:
-            rand_num = random.randint(0, 3)
-            self.direction = int_to_step(rand_num)
-
+            dirs.append(Step.LEFT)
+        if food.x > self.x:
+            dirs.append(Step.RIGHT)
+        if food.y < self.y:
+            dirs.append(Step.UP)
+        if food.y > self.y:
+            dirs.append(Step.DOWN)
+        random.shuffle(dirs)
+        if len(dirs) != 0:
+            self.direction = dirs[0]
+        else:
+            change_dir = random.randint(0, 5)
+            if change_dir == 0:
+                rand_num = random.randint(0, 3)
+                self.direction = int_to_step(rand_num)
+        
         if self.direction == Step.LEFT and self.x > 0:
             self.x -= self.vel
         if self.direction == Step.RIGHT and self.x < C.BORDERS - self.width:
@@ -86,6 +98,7 @@ while run:
     KEYS = pygame.key.get_pressed()
     for i in range(C.INIT_NUM_CELLS):
         cells[i].move()
+        cells[i].check_collision(food)
 
     if KEYS[pygame.K_LEFT] and cells[0].x > 0:
         cells[0].x -= cells[0].vel
