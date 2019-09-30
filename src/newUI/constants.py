@@ -12,6 +12,7 @@ DONE = False                                    # variable to keep track if wind
 DROPPING_PACE = 2
 
 # cell parameters
+INIT_VEL = 4
 INIT_HUNGER = 0
 FOOD_WORTH = 12
 EATING_SIZE = 3
