@@ -1,5 +1,5 @@
-# Code source: https://techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/optimization/
 import os
+import random
 import pygame
 import constants as C
 from board import Board, Food, Cell
@@ -23,41 +23,43 @@ CLOCK = pygame.time.Clock()
 
 def redraw_game_window():
     WIN.blit(BG, (0, 0))
-    for _, food in enumerate(FOODS):
+    for _, food in enumerate(BOARD.foods):
         food.draw(WIN)
-    for _, cell in enumerate(CELLS):
+    for cell in BOARD.cells:
         cell.draw(WIN)
     pygame.display.update()
 
-BOARD = Board(50)
-FOODS = [Food(100, 100)]
-CELLS = []
+BOARD = Board()
+BOARD.foods = [Food(100, 100)]
+BOARD.cells = []
 for _ in range(C.INIT_NUM_CELLS):
-    CELLS.append(Cell(500, 500, 20, 20, CHAR))
+    BOARD.cells.append(Cell(500, 500, 20, 20, CHAR))
 
 
 #mainloop
 RUN = True
+ITERATIONS = 0
 while RUN:
+    ITERATIONS += 1
     CLOCK.tick(50)
-
+    if ITERATIONS % C.DROPPING_PACE == 0:
+        BOARD.add_food(random.randint(0, 700), random.randint(0, 700))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
 
     KEYS = pygame.key.get_pressed()
-    for _, cell in enumerate(CELLS):
-        cell.move(FOODS)
-        cell.check_collision(FOODS[0])
+    BOARD.make_step()
 
-    if KEYS[pygame.K_LEFT] and CELLS[0].x > 0:
-        CELLS[0].x -= CELLS[0].vel
-    if KEYS[pygame.K_RIGHT] and CELLS[0].x < C.BORDERS - CELLS[0].width:
-        CELLS[0].x += CELLS[0].vel
-    if KEYS[pygame.K_UP] and CELLS[0].y > 0:
-        CELLS[0].y -= CELLS[0].vel
-    if KEYS[pygame.K_DOWN] and CELLS[0].y < C.BORDERS - CELLS[0].height:
-        CELLS[0].y += CELLS[0].vel
+
+    if KEYS[pygame.K_LEFT] and BOARD.cells[0].x > 0:
+        BOARD.cells[0].x -= BOARD.cells[0].vel
+    if KEYS[pygame.K_RIGHT] and BOARD.cells[0].x < C.BORDERS - BOARD.cells[0].width:
+        BOARD.cells[0].x += BOARD.cells[0].vel
+    if KEYS[pygame.K_UP] and BOARD.cells[0].y > 0:
+        BOARD.cells[0].y -= BOARD.cells[0].vel
+    if KEYS[pygame.K_DOWN] and BOARD.cells[0].y < C.BORDERS - BOARD.cells[0].height:
+        BOARD.cells[0].y += BOARD.cells[0].vel
 
     redraw_game_window()
 

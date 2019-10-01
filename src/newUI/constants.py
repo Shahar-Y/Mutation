@@ -3,13 +3,15 @@ BORDERS = 900
 WINDOW_SIZE = 1000
 
 # game parameters
-INIT_NUM_CELLS = 5
+INIT_NUM_CELLS = 3
+EATING_DISTANCE = 10
 FOOD_DROPPED = 10
 INIT_GAME_SPEED = 5
 MAX_GAME_SPEED = 10
 DONE = False                                    # variable to keep track if window is open
 
-DROPPING_PACE = 2
+DROPPING_PACE = 5
+FOOD_SIZE = 20
 
 # cell parameters
 INIT_VEL = 4
@@ -17,12 +19,13 @@ INIT_HUNGER = 0
 FOOD_WORTH = 12
 EATING_SIZE = 3
 COLOR_CHANGE = 4
+CHANGE_DIR_PROB = 8
 
 # cell mutation features
 MUTATION_POINTS = 15
 MUTATION_CHANCE = 3
 
-INIT_SIZE = 5
+INIT_SIZE = 20
 MAX_SIZE = 10
 MIN_SIZE = 1
 SIZE_VALUE = 1
