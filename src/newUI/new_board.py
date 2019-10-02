@@ -41,19 +41,35 @@ class Board():
 
     def add_food(self, x, y):
         self.foods.append(Food(x, y))
+    
+    def add_cell(self, cell):
+        self.cells.append(Cell(cell.x, cell.y, cell.width, cell.height, cell.char, int(cell.hunger/2)))
 
     def make_step(self):
         for curr_cell in self.cells:
+            curr_cell.hunger -= 1
+            if curr_cell.hunger <= 0:
+                self.cells.remove(curr_cell)
             nearest_food, _ = self.get_nearest_food(curr_cell)
             curr_cell.move(nearest_food)
             if nearest_food:
                 eaten = curr_cell.check_eaten(nearest_food)
                 if eaten:
+                    curr_cell.hunger += 20
                     self.foods.remove(nearest_food)
+                    if curr_cell.pregnency == curr_cell.repro_rate:
+                        curr_cell.pregnency = 0
+                        curr_cell.hunger = int(curr_cell.hunger/2)
+                        self.reproduce(curr_cell)
+    
+    def reproduce(self, cell):
+        self.add_cell(cell)
+        print(len(self.cells), "  ", len(self.foods), str(len(self.cells)*len(self.foods)))
+        
 
 
 class Cell(object):
-    def __init__(self, x, y, width, height, char):
+    def __init__(self, x, y, width, height, char, hunger):
         self.x = x
         self.y = y
         self.size = C.INIT_SIZE
@@ -62,6 +78,9 @@ class Cell(object):
         self.vel = C.INIT_VEL
         self.direction = Step.UP
         self.char = char
+        self.pregnency = 0
+        self.repro_rate = C.INIT_FOOD_TO_REPRO
+        self.hunger = hunger
 
     def draw(self, win):
         win.blit(self.char, (self.x, self.y))
@@ -69,7 +88,7 @@ class Cell(object):
     def check_eaten(self, food):
         d = math.hypot(self.x - food.x, self.y - food.y)
         if d < C.EATING_DISTANCE:
-            print("EATEN! d=", d, " ", self.size, " + ", food.size)
+            self.pregnency += 1
             return True
         return False
 

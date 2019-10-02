@@ -2,7 +2,7 @@ import os
 import random
 import pygame
 import constants as C
-from board import Board, Food, Cell
+from new_board import Board, Food, Cell
 
 pygame.init()
 
@@ -33,7 +33,11 @@ BOARD = Board()
 BOARD.foods = [Food(100, 100)]
 BOARD.cells = []
 for _ in range(C.INIT_NUM_CELLS):
-    BOARD.cells.append(Cell(500, 500, 20, 20, CHAR))
+    BOARD.cells.append(Cell(500, 500, 20, 20, CHAR, C.INIT_HUNGER))
+
+for iu in range(C.INIT_NUM_CELLS):
+    print(C.INIT_HUNGER)
+    print(BOARD.cells[iu].hunger)
 
 
 #mainloop
@@ -41,9 +45,10 @@ RUN = True
 ITERATIONS = 0
 while RUN:
     ITERATIONS += 1
-    CLOCK.tick(50)
+    CLOCK.tick(250)
     if ITERATIONS % C.DROPPING_PACE == 0:
-        BOARD.add_food(random.randint(0, 700), random.randint(0, 700))
+        for i in range(1, 10):
+            BOARD.add_food(random.randint(0, C.WINDOW_SIZE), random.randint(0, C.WINDOW_SIZE))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False

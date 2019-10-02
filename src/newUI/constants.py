@@ -1,6 +1,6 @@
 # board-related constants
 BORDERS = 900
-WINDOW_SIZE = 1000
+WINDOW_SIZE = 870
 
 # game parameters
 INIT_NUM_CELLS = 3
@@ -15,7 +15,7 @@ FOOD_SIZE = 20
 
 # cell parameters
 INIT_VEL = 4
-INIT_HUNGER = 0
+INIT_HUNGER = 100
 FOOD_WORTH = 12
 EATING_SIZE = 3
 COLOR_CHANGE = 4
