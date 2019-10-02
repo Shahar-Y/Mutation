@@ -41,9 +41,11 @@ class Board():
 
     def add_food(self, x, y):
         self.foods.append(Food(x, y))
-    
+
     def add_cell(self, cell):
-        self.cells.append(Cell(cell.x, cell.y, cell.width, cell.height, cell.char, int(cell.hunger/2)))
+        new_cell = Cell.duplicate_cell(cell)
+        new_cell.hunger = int(new_cell.hunger/2)
+        self.cells.append(new_cell)
 
     def make_step(self):
         for curr_cell in self.cells:
@@ -61,11 +63,10 @@ class Board():
                         curr_cell.pregnency = 0
                         curr_cell.hunger = int(curr_cell.hunger/2)
                         self.reproduce(curr_cell)
-    
+
     def reproduce(self, cell):
         self.add_cell(cell)
         print(len(self.cells), "  ", len(self.foods), str(len(self.cells)*len(self.foods)))
-        
 
 
 class Cell(object):
@@ -82,12 +83,17 @@ class Cell(object):
         self.repro_rate = C.INIT_FOOD_TO_REPRO
         self.hunger = hunger
 
+    @classmethod
+    def duplicate_cell(cls, cell) -> 'Cell':
+        return  cls(x=cell.x, y=cell.y, width=cell.width, height=cell.height,
+                    char=cell.char, hunger=cell.hunger)
+
     def draw(self, win):
         win.blit(self.char, (self.x, self.y))
 
     def check_eaten(self, food):
-        d = math.hypot(self.x - food.x, self.y - food.y)
-        if d < C.EATING_DISTANCE:
+        dist = math.hypot(self.x - food.x, self.y - food.y)
+        if dist < C.EATING_DISTANCE:
             self.pregnency += 1
             return True
         return False
@@ -106,7 +112,7 @@ class Cell(object):
             if food.y - 5 > self.y:
                 dirs.append(Step.DOWN)
             random.shuffle(dirs)
-            if len(dirs) != 0:
+            if dirs:
                 self.direction = dirs[0]
         else:
             change_dir = random.randint(0, C.CHANGE_DIR_PROB)
