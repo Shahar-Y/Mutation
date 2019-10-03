@@ -6,15 +6,14 @@ WINDOW_SIZE = 870
 INIT_NUM_CELLS = 3
 EATING_DISTANCE = 10
 FOOD_DROPPED = 10
-INIT_GAME_SPEED = 5
-MAX_GAME_SPEED = 10
+GAME_SPEED = 50
 DONE = False                                    # variable to keep track if window is open
 
 DROPPING_PACE = 5
 FOOD_SIZE = 20
 
 # cell parameters
-INIT_VEL = 4
+INIT_VEL = 7
 INIT_HUNGER = 100
 FOOD_WORTH = 12
 EATING_SIZE = 3
