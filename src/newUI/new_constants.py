@@ -8,7 +8,7 @@ EATING_DISTANCE = 10
 FOOD_DROPPED = 10
 GAME_SPEED = 50
 DONE = False                                    # variable to keep track if window is open
-
+MAP_SIZE = 50
 DROPPING_PACE = 5
 FOOD_SIZE = 20
 
@@ -38,6 +38,11 @@ INIT_SIGHT = 5
 MAX_SIGHT = 10
 MIN_SIGHT = 1
 SIGHT_VALUE = 1
+
+INIT_SPEED = 5
+MAX_SPEED = 10
+MIN_SPEED = 1
+SPEED_VALUE = 1
 
 INIT_FOOD_TO_REPRO = 4
 MAX_FOOD_TO_REPRO = 4

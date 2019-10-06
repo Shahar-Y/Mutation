@@ -1,36 +1,45 @@
 import os
 import random
 import pygame
-import constants as C
+import new_constants as C
 from new_board import Board, Cell
 import cv2
 
-# get the original image
-image = cv2.imread("src/newUI/images/original_cell.png")
-overlay = image.copy()
-output = image.copy()
 
-# draw a circle
-color = (200, 100, 0)
-cv2.circle(overlay, (125, 125), 115, color, -1)
+def create_db():
+    print(str(C.MAX_SIZE), ' ', str(C.MAX_SIGHT), ' ', str(C.MAX_SPEED))
+    for sz in range(0, C.MAX_SIZE+1):
+        for st in range(0, C.MAX_SIGHT+1):
+            for spd in range(0, C.MAX_SPEED+1):
+                # get the original image
+                print(str(sz), ' ', str(st), ' ', str(spd))
+                image = cv2.imread("src/newUI/images/original_cell.png")
+                overlay = image.copy()
+                output = image.copy()
 
-# create the overlayed image
-alpha = 0.5
-cv2.addWeighted(overlay, alpha, output, 1 - alpha, 0, output)
-file_name = 'src/images/Cell_'+str(alpha)+'_'+str(color[0])+'_'+str(color[1])+'_'+str(color[2])+'.png'
-cv2.imwrite(file_name, output)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+                # draw a circle
+                color = (sz*25, st*25, spd*25)
+                cv2.circle(overlay, (125, 125), 115, color, -1)
 
-src = cv2.imread(file_name, 1)
-tmp = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
-_,alpha = cv2.threshold(tmp, 0, 255, cv2.THRESH_BINARY)
-b, g, r = cv2.split(src)
-rgba = [b,g,r, alpha]
-dst = cv2.merge(rgba, 4)
-dst = cv2.resize(dst, (0,0), fx=0.1, fy=0.1)
-cv2.imwrite(file_name, dst)
+                # create the overlayed image
+                alpha = 0.5
+                cv2.addWeighted(overlay, alpha, output, 1 - alpha, 0, output)
+                icon_name = 'src/images/icons/Cell_'+str(sz)+'_'+str(st)+'_'+str(spd)+'.png'
+                cv2.imwrite(icon_name, output)
 
+                src = cv2.imread(icon_name, 1)
+                tmp = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+                _,alpha = cv2.threshold(tmp, 0, 255, cv2.THRESH_BINARY)
+                b, g, r = cv2.split(src)
+                rgba = [b,g,r, alpha]
+                dst = cv2.merge(rgba, 4)
+                dst = cv2.resize(dst, (0, 0), fx=0.1, fy=0.1)
+                cv2.imwrite(icon_name, dst)
+                cv2.waitKey(0)
+                cv2.destroyAllWindows()
+
+create_db()
+file_name = 'src/images/icons/Cell_1_1_1.png'
 pygame.init()
 
 WIN = pygame.display.set_mode((C.BORDERS, C.BORDERS))
