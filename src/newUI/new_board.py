@@ -42,51 +42,60 @@ class Board():
     def add_food(self, x, y):
         self.foods.append(Food(x, y))
 
-    def add_cell(self, cell):
-        new_cell = Cell.duplicate_cell(cell)
+    def add_cell(self, rcell):
+        new_cell = Cell.duplicate_cell(rcell)
+        new_cell.mutate()
         new_cell.hunger = int(new_cell.hunger/2)
         self.cells.append(new_cell)
+        txt = ''
+        for c in self.cells:
+            txt += (str(c.vel) + ' ')
+        print(txt)
+
+
+
 
     def make_step(self):
-        for curr_cell in self.cells:
+        for i, curr_cell in enumerate(self.cells):
             curr_cell.hunger -= 1
             if curr_cell.hunger <= 0:
-                self.cells.remove(curr_cell)
+                self.cells.pop(i)
             nearest_food, _ = self.get_nearest_food(curr_cell)
             curr_cell.move(nearest_food)
             if nearest_food:
                 eaten = curr_cell.check_eaten(nearest_food)
                 if eaten:
-                    curr_cell.hunger += 20
+                    curr_cell.hunger += C.FOOD_WORTH
                     self.foods.remove(nearest_food)
                     if curr_cell.pregnency == curr_cell.repro_rate:
                         curr_cell.pregnency = 0
                         curr_cell.hunger = int(curr_cell.hunger/2)
-                        self.reproduce(curr_cell)
+                        self.add_cell(curr_cell)
 
-    def reproduce(self, cell):
-        self.add_cell(cell)
-        print(len(self.cells), "  ", len(self.foods), str(len(self.cells)*len(self.foods)))
 
 
 class Cell(object):
-    def __init__(self, x, y, width, height, char, hunger):
+    def __init__(self, x, y, hunger, size, sight, vel, repro_rate):
         self.x = x
         self.y = y
-        self.size = C.INIT_SIZE
-        self.width = width
-        self.height = height
-        self.vel = C.INIT_VEL
-        self.direction = Step.UP
-        self.char = char
-        self.pregnency = 0
-        self.repro_rate = C.INIT_FOOD_TO_REPRO
         self.hunger = hunger
+
+        self.size = size
+        self.sight = sight
+        self.vel = vel
+        self.repro_rate = repro_rate
+
+        self.direction = Step.UP
+        self.pregnency = 0
+        self.icon = 'None'
+        self.char = 'None'
+        self.set_icon_path()
+        self.set_char()
 
     @classmethod
     def duplicate_cell(cls, cell) -> 'Cell':
-        return  cls(x=cell.x, y=cell.y, width=cell.width, height=cell.height,
-                    char=cell.char, hunger=cell.hunger)
+        return  cls(x=cell.x, y=cell.y, hunger=cell.hunger, size=cell.size,
+                    sight=cell.sight, vel=cell.vel, repro_rate=cell.repro_rate)
 
     def draw(self, win):
         win.blit(self.char, (self.x, self.y))
@@ -97,6 +106,33 @@ class Cell(object):
             self.pregnency += 1
             return True
         return False
+
+    def set_icon_path(self):
+        self.icon = 'src/images/icons/Cell_'+str(self.size)+'_'+str(self.sight)+'_'+str(self.vel)+'.png'
+
+    def set_char(self):
+        self.char = pygame.image.load(os.path.join(os.getcwd(), self.icon))
+
+    def mutate(self):
+        mutation_chance = random.randint(1, 3)
+        if mutation_chance == 1:
+            mutation = random.randint(-1, 1)
+            if self.sight+mutation <= C.MAX_SIGHT and self.sight+mutation >= C.MIN_SIGHT:
+                self.sight += mutation
+
+            mutation = random.randint(-1, 1)
+            if self.size+mutation <= C.MAX_SIZE and self.size+mutation >= C.MIN_SIZE:
+                self.size += mutation
+
+            mutation = random.randint(-1, 1)
+            if (self.vel+mutation <= C.MAX_VEL) and (self.vel+mutation >= C.MIN_VEL):
+                self.vel = self.vel + mutation
+                print('!!!!!!!!!!!!!! vel: '+ str(mutation) + ' : ' + str(self.vel))
+            else:
+                print('no good:' +str(self.vel+mutation))
+
+            self.set_icon_path()
+            self.set_char()
 
 
     def move(self, food):
@@ -122,9 +158,9 @@ class Cell(object):
 
         if self.direction == Step.LEFT and self.x > 0:
             self.x -= self.vel
-        if self.direction == Step.RIGHT and self.x < C.BORDERS - self.width:
+        if self.direction == Step.RIGHT and self.x < C.BORDERS - self.size*2:
             self.x += self.vel
         if self.direction == Step.UP and self.y > 0:
             self.y -= self.vel
-        if self.direction == Step.DOWN and self.y < C.BORDERS - self.height:
+        if self.direction == Step.DOWN and self.y < C.BORDERS - self.size*2:
             self.y += self.vel

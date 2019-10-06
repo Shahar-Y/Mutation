@@ -66,10 +66,10 @@ def redraw_game_window():
     pygame.display.update()
 
 BOARD = Board()
-BOARD.foods = []
-BOARD.cells = []
+
 for _ in range(C.INIT_NUM_CELLS):
-    BOARD.cells.append(Cell(500, 500, 20, 20, CHAR, C.INIT_HUNGER))
+    BOARD.cells.append(Cell(500, 500, C.INIT_HUNGER, C.INIT_SIZE, 
+                            C.INIT_SIGHT, C.INIT_VEL, C.INIT_FOOD_TO_REPRO))
 
 
 #mainloop
