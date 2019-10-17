@@ -33,7 +33,7 @@ class Board():
         closest_distance = float('inf')
         for i, food in enumerate(self.foods):
             dist = math.hypot(cell.x - food.x, cell.y - food.y)
-            if closest_distance > dist:
+            if cell.sight*C.SIGHT_WORTH > dist and closest_distance > dist:
                 closest_distance = dist
                 closesd_food = food
                 cf_idx = i
@@ -49,7 +49,7 @@ class Board():
         self.cells.append(new_cell)
         txt = ''
         for c in self.cells:
-            txt += (str(c.vel) + ' ')
+            txt += '[' + str(c.sight) + ','+str(c.vel) + ','+ str(c.size) + '] '
         print(txt)
 
 
@@ -107,29 +107,32 @@ class Cell(object):
             return True
         return False
 
+    def get_mutation_points(self):
+        return self.vel + self.sight + self.size
+
     def set_icon_path(self):
-        self.icon = 'src/images/icons/Cell_'+str(self.size)+'_'+str(self.sight)+'_'+str(self.vel)+'.png'
+        self.icon = 'src/images/icons/Cell_'+str(self.sight)+'_'+str(self.vel)+'_'+str(self.size)+'.png'
 
     def set_char(self):
         self.char = pygame.image.load(os.path.join(os.getcwd(), self.icon))
 
     def mutate(self):
-        mutation_chance = random.randint(1, 3)
+        mutation_chance = random.randint(1, C.MUTATION_CHANCE)
         if mutation_chance == 1:
             mutation = random.randint(-1, 1)
             if self.sight+mutation <= C.MAX_SIGHT and self.sight+mutation >= C.MIN_SIGHT:
-                self.sight += mutation
+                if self.get_mutation_points()+mutation <= C.MAX_MUTATION_POINTS:
+                    self.sight += mutation
 
             mutation = random.randint(-1, 1)
             if self.size+mutation <= C.MAX_SIZE and self.size+mutation >= C.MIN_SIZE:
-                self.size += mutation
+                if self.get_mutation_points()+mutation <= C.MAX_MUTATION_POINTS:
+                    self.size += mutation
 
             mutation = random.randint(-1, 1)
             if (self.vel+mutation <= C.MAX_VEL) and (self.vel+mutation >= C.MIN_VEL):
-                self.vel = self.vel + mutation
-                print('!!!!!!!!!!!!!! vel: '+ str(mutation) + ' : ' + str(self.vel))
-            else:
-                print('no good:' +str(self.vel+mutation))
+                if self.get_mutation_points()+mutation < C.MAX_MUTATION_POINTS:
+                    self.vel = self.vel + mutation
 
             self.set_icon_path()
             self.set_char()

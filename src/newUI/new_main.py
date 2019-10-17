@@ -6,15 +6,15 @@ from new_board import Board, Cell
 # from new_db import resize_food, create_db
 
 
-file_name = 'src/images/icons/Cell_1_1_1.png'
+# file_name = 'src/images/icons/Cell_10_10_2.png'
 pygame.init()
 
 WIN = pygame.display.set_mode((C.BORDERS, C.BORDERS))
 
-WALK_RIGHT = [pygame.image.load(os.path.join(os.getcwd(), 'src/images/cell.png'))]
-WALK_LEFT = [pygame.image.load(os.path.join(os.getcwd(), 'src/images/cell.png'))]
+# WALK_RIGHT = [pygame.image.load(os.path.join(os.getcwd(), 'src/images/cell.png'))]
+# WALK_LEFT = [pygame.image.load(os.path.join(os.getcwd(), 'src/images/cell.png'))]
 BG = pygame.image.load(os.path.join(os.getcwd(), 'src/images/water2.png'))
-CHAR = pygame.image.load(os.path.join(os.getcwd(), file_name))
+# CHAR = pygame.image.load(os.path.join(os.getcwd(), file_name))
 CLOCK = pygame.time.Clock()
 
 
@@ -41,7 +41,7 @@ while RUN:
     CLOCK.tick(C.GAME_SPEED)
     if ITERATIONS % C.DROPPING_PACE == 0:
         for i in range(1, 5):
-            BOARD.add_food(random.randint(0, C.WINDOW_SIZE), random.randint(0, C.WINDOW_SIZE))
+            BOARD.add_food(random.randint(5, C.WINDOW_SIZE), random.randint(5, C.WINDOW_SIZE))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
