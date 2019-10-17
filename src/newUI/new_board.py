@@ -30,6 +30,7 @@ class Board():
     def get_nearest_food(self, cell):
         closesd_food = None
         cf_idx = None
+        is_food = True
         closest_distance = float('inf')
         for i, food in enumerate(self.foods):
             dist = math.hypot(cell.x - food.x, cell.y - food.y)
@@ -37,7 +38,17 @@ class Board():
                 closest_distance = dist
                 closesd_food = food
                 cf_idx = i
-        return closesd_food, cf_idx
+        for j, second_cell in enumerate(self.cells):
+            if cell.size >= second_cell.size + C.EATING_SIZE:
+                dist = math.hypot(cell.x - second_cell.x, cell.y - second_cell.y)
+                if cell.sight*C.SIGHT_WORTH > dist and closest_distance > dist:
+                    closest_distance = dist
+                    closesd_food = second_cell
+                    cf_idx = j
+                    is_food = False
+
+
+        return closesd_food, cf_idx, is_food
 
     def add_food(self, x, y):
         self.foods.append(Food(x, y))
@@ -45,12 +56,11 @@ class Board():
     def add_cell(self, rcell):
         new_cell = Cell.duplicate_cell(rcell)
         new_cell.mutate()
-        new_cell.hunger = int(new_cell.hunger/2)
         self.cells.append(new_cell)
-        txt = ''
-        for c in self.cells:
-            txt += '[' + str(c.sight) + ','+str(c.vel) + ','+ str(c.size) + '] '
-        print(txt)
+        # txt = ''
+        # for c in self.cells:
+        #     txt += '[' + str(c.sight) + ','+str(c.vel) + ','+ str(c.size) + '] '
+        # print(txt)
 
 
 
@@ -58,44 +68,59 @@ class Board():
     def make_step(self):
         for i, curr_cell in enumerate(self.cells):
             curr_cell.hunger -= 1
+            nearest_food = None
             if curr_cell.hunger <= 0:
                 self.cells.pop(i)
-            nearest_food, _ = self.get_nearest_food(curr_cell)
+            if not curr_cell.full:
+                nearest_food, _, is_food = self.get_nearest_food(curr_cell)
             curr_cell.move(nearest_food)
             if nearest_food:
                 eaten = curr_cell.check_eaten(nearest_food)
                 if eaten:
-                    curr_cell.hunger += C.FOOD_WORTH
-                    self.foods.remove(nearest_food)
+                    curr_cell.hunger += curr_cell.food_worth
+                    if curr_cell.hunger >= C.FULL_HUNHER:
+                        curr_cell.full = True
+                    if is_food:
+                        self.foods.remove(nearest_food)
+                    else: 
+                        self.cells.remove(nearest_food)
                     if curr_cell.pregnency == curr_cell.repro_rate:
                         curr_cell.pregnency = 0
-                        curr_cell.hunger = int(curr_cell.hunger/2)
+                        curr_cell.hunger = int(curr_cell.hunger*2/3)
                         self.add_cell(curr_cell)
+            else: 
+                if curr_cell.hunger <= C.HUNGRY_HUNGER:
+                    curr_cell.full = False            
 
 
 
 class Cell(object):
-    def __init__(self, x, y, hunger, size, sight, vel, repro_rate):
+    def __init__(self, x, y, hunger, size, sight, vel):
         self.x = x
         self.y = y
         self.hunger = hunger
+        self.full = False
 
         self.size = size
         self.sight = sight
         self.vel = vel
-        self.repro_rate = repro_rate
+
 
         self.direction = Step.UP
         self.pregnency = 0
+
+        self.repro_rate = 'None'
+        self.food_worth = 'None'
         self.icon = 'None'
         self.char = 'None'
         self.set_icon_path()
         self.set_char()
+        self.set_food_reference()
 
     @classmethod
     def duplicate_cell(cls, cell) -> 'Cell':
         return  cls(x=cell.x, y=cell.y, hunger=cell.hunger, size=cell.size,
-                    sight=cell.sight, vel=cell.vel, repro_rate=cell.repro_rate)
+                    sight=cell.sight, vel=cell.vel)
 
     def draw(self, win):
         win.blit(self.char, (self.x, self.y))
@@ -136,7 +161,11 @@ class Cell(object):
 
             self.set_icon_path()
             self.set_char()
+            self.set_food_reference()
 
+    def set_food_reference(self):
+        self.repro_rate = int(self.size/2) + 2
+        self.food_worth = 70
 
     def move(self, food):
         dirs = []

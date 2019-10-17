@@ -29,8 +29,8 @@ def redraw_game_window():
 BOARD = Board()
 
 for _ in range(C.INIT_NUM_CELLS):
-    BOARD.cells.append(Cell(500, 500, C.INIT_HUNGER, C.INIT_SIZE, 
-                            C.INIT_SIGHT, C.INIT_VEL, C.INIT_FOOD_TO_REPRO))
+    BOARD.cells.append(Cell(500, 500, C.INIT_HUNGER, C.INIT_SIZE,
+                            C.INIT_SIGHT, C.INIT_VEL))
 
 
 #mainloop
@@ -39,8 +39,8 @@ ITERATIONS = 0
 while RUN:
     ITERATIONS += 1
     CLOCK.tick(C.GAME_SPEED)
-    if ITERATIONS % C.DROPPING_PACE == 0:
-        for i in range(1, 5):
+    if ITERATIONS % C.DROPPING_PACE == 0 and len(BOARD.foods) <= C.MAX_FOOD_ON_BOARD:
+        for i in range(1, C.FOOD_DROPPED):
             BOARD.add_food(random.randint(5, C.WINDOW_SIZE), random.randint(5, C.WINDOW_SIZE))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
