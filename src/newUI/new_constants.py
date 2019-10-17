@@ -1,7 +1,6 @@
 # board-related constants
-BORDERS = 700
-WIDTH = 1200
-WINDOW_SIZE = 665
+WINDOW_WIDTH = 1500
+WINDOW_HEIGHT = 700
 
 # game parameters
 INIT_NUM_CELLS = 1

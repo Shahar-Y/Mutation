@@ -9,7 +9,7 @@ from new_board import Board, Cell
 # file_name = 'src/images/icons/Cell_10_10_2.png'
 pygame.init()
 
-WIN = pygame.display.set_mode((C.BORDERS, C.BORDERS))
+WIN = pygame.display.set_mode((C.WINDOW_WIDTH, C.WINDOW_HEIGHT))
 
 # WALK_RIGHT = [pygame.image.load(os.path.join(os.getcwd(), 'src/images/cell.png'))]
 # WALK_LEFT = [pygame.image.load(os.path.join(os.getcwd(), 'src/images/cell.png'))]
@@ -41,7 +41,7 @@ while RUN:
     CLOCK.tick(C.GAME_SPEED)
     if ITERATIONS % C.DROPPING_PACE == 0 and len(BOARD.foods) <= C.MAX_FOOD_ON_BOARD:
         for i in range(1, C.FOOD_DROPPED):
-            BOARD.add_food(random.randint(5, C.WINDOW_SIZE), random.randint(5, C.WINDOW_SIZE))
+            BOARD.add_food(random.randint(5, C.WINDOW_WIDTH), random.randint(5, C.WINDOW_HEIGHT))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
@@ -52,11 +52,11 @@ while RUN:
 
     if KEYS[pygame.K_LEFT] and BOARD.cells[0].x > 0:
         BOARD.cells[0].x -= BOARD.cells[0].vel
-    if KEYS[pygame.K_RIGHT] and BOARD.cells[0].x < C.BORDERS - BOARD.cells[0].width:
+    if KEYS[pygame.K_RIGHT] and BOARD.cells[0].x < C.WINDOW_WIDTH - BOARD.cells[0].width:
         BOARD.cells[0].x += BOARD.cells[0].vel
     if KEYS[pygame.K_UP] and BOARD.cells[0].y > 0:
         BOARD.cells[0].y -= BOARD.cells[0].vel
-    if KEYS[pygame.K_DOWN] and BOARD.cells[0].y < C.BORDERS - BOARD.cells[0].height:
+    if KEYS[pygame.K_DOWN] and BOARD.cells[0].y < C.WINDOW_HEIGHT - BOARD.cells[0].height:
         BOARD.cells[0].y += BOARD.cells[0].vel
 
     redraw_game_window()

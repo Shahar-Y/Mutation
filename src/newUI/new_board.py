@@ -32,16 +32,21 @@ class Board():
         cf_idx = None
         is_food = True
         closest_distance = float('inf')
+        sight_distance = cell.sight*C.SIGHT_WORTH
         for i, food in enumerate(self.foods):
+            if abs(cell.x - food.x > sight_distance) or abs(cell.y - food.y > sight_distance):
+                continue
             dist = math.hypot(cell.x - food.x, cell.y - food.y)
-            if cell.sight*C.SIGHT_WORTH > dist and closest_distance > dist:
+            if sight_distance > dist and closest_distance > dist:
                 closest_distance = dist
                 closesd_food = food
                 cf_idx = i
         for j, second_cell in enumerate(self.cells):
+            if abs(cell.x - second_cell.x > sight_distance) or abs(cell.y - second_cell.y > sight_distance):
+                continue
             if cell.size >= second_cell.size + C.EATING_SIZE:
                 dist = math.hypot(cell.x - second_cell.x, cell.y - second_cell.y)
-                if cell.sight*C.SIGHT_WORTH > dist and closest_distance > dist:
+                if sight_distance > dist and closest_distance > dist:
                     closest_distance = dist
                     closesd_food = second_cell
                     cf_idx = j
@@ -190,9 +195,9 @@ class Cell(object):
 
         if self.direction == Step.LEFT and self.x > 0:
             self.x -= self.vel
-        if self.direction == Step.RIGHT and self.x < C.BORDERS - self.size*2:
+        if self.direction == Step.RIGHT and self.x < C.WINDOW_WIDTH - self.size*2:
             self.x += self.vel
         if self.direction == Step.UP and self.y > 0:
             self.y -= self.vel
-        if self.direction == Step.DOWN and self.y < C.BORDERS - self.size*2:
+        if self.direction == Step.DOWN and self.y < C.WINDOW_HEIGHT - self.size*2:
             self.y += self.vel
