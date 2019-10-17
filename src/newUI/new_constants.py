@@ -1,6 +1,6 @@
 # board-related constants
-BORDERS = 900
-WINDOW_SIZE = 870
+BORDERS = 700
+WINDOW_SIZE = 670
 
 # game parameters
 INIT_NUM_CELLS = 1
@@ -21,7 +21,7 @@ CHANGE_DIR_PROB = 8
 
 # cell mutation features
 MUTATION_POINTS = 15
-MUTATION_CHANCE = 3
+MUTATION_CHANCE = 5
 
 INIT_VEL = 2
 MAX_VEL = 10
