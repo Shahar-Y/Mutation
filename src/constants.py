@@ -1,11 +1,11 @@
 # board-related constants
-WINDOW_WIDTH = 1500
+WINDOW_WIDTH = 800
 WINDOW_HEIGHT = 700
 
 # game parameters
 INIT_NUM_CELLS = 1
 EATING_DISTANCE = 10
-FOOD_DROPPED = 25
+FOOD_DROPPED = 10
 GAME_SPEED = 50
 DONE = False                                    # variable to keep track if window is open
 MAP_SIZE = 50

@@ -3,7 +3,7 @@ import os
 import random
 import pygame
 from enums import Step, int_to_step
-import new_constants as C
+import constants as C
 
 ALGEA = pygame.image.load(os.path.join(os.getcwd(), 'src/images/small_food.png'))
 
