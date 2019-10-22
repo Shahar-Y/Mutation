@@ -1,6 +1,7 @@
 import math
 import os
 import random
+from functools import reduce
 import pygame
 from enums import Step, int_to_step
 import constants as C
@@ -22,25 +23,34 @@ class Food():
     def draw(self, win):
         win.blit(ALGEA, (self.x, self.y))
 
+def first_smallest(val1, val2):
+    if val1[0] < val2[0]:
+        return val1
+    return val2
+
 class Board():
     def __init__(self):
         self.cells = []
         self.foods = []
 
     def get_nearest_food(self, cell):
-        closesd_food = None
+        closest_food = None
         cf_idx = None
         is_food = True
         closest_distance = float('inf')
         sight_distance = cell.sight*C.SIGHT_WORTH
+        mapy = map(cell.get_distance, self.foods)
+        red = reduce(lambda a, b: a if first_smallest(a, b) else b, mapy)
         for i, food in enumerate(self.foods):
             if abs(cell.x - food.x > sight_distance) or abs(cell.y - food.y > sight_distance):
                 continue
             dist = math.hypot(cell.x - food.x, cell.y - food.y)
             if sight_distance > dist and closest_distance > dist:
                 closest_distance = dist
-                closesd_food = food
+                closest_food = food
                 cf_idx = i
+        # if red != closest_distance:
+            # print(str(red)+ " vs " + str(closest_distance))
         for j, second_cell in enumerate(self.cells):
             if abs(cell.x - second_cell.x > sight_distance) or abs(cell.y - second_cell.y > sight_distance):
                 continue
@@ -48,12 +58,12 @@ class Board():
                 dist = math.hypot(cell.x - second_cell.x, cell.y - second_cell.y)
                 if sight_distance > dist and closest_distance > dist:
                     closest_distance = dist
-                    closesd_food = second_cell
+                    closest_food = second_cell
                     cf_idx = j
                     is_food = False
 
 
-        return closesd_food, cf_idx, is_food
+        return closest_food, cf_idx, is_food
 
     def add_food(self, x, y):
         self.foods.append(Food(x, y))
@@ -139,6 +149,9 @@ class Cell(object):
 
     def get_mutation_points(self):
         return self.vel + self.sight + self.size
+
+    def get_distance(self, point):
+        return (math.hypot(point.x - self.x, point.y - self.y), point)
 
     def set_icon_path(self):
         self.icon = 'src/images/icons/Cell_'+str(self.sight)+'_'+str(self.vel)+'_'+str(self.size)+'.png'

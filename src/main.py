@@ -37,7 +37,6 @@ for _ in range(C.INIT_NUM_CELLS):
 RUN = True
 ITERATIONS = 0
 while RUN:
-    ITERATIONS += 1
     CLOCK.tick(C.GAME_SPEED)
     if ITERATIONS % C.DROPPING_PACE == 0 and len(BOARD.foods) <= C.MAX_FOOD_ON_BOARD:
         for i in range(1, C.FOOD_DROPPED):
@@ -48,6 +47,7 @@ while RUN:
 
     KEYS = pygame.key.get_pressed()
     BOARD.make_step()
+    ITERATIONS += 1
 
 
     if KEYS[pygame.K_LEFT] and BOARD.cells[0].x > 0:
