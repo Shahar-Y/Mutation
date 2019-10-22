@@ -1,12 +1,25 @@
 import cv2
 import new_constants as C
+import os
 
 def create_db():
+    # create the icons directory
+    path = "src/images/icons"
+    try:
+        os.mkdir(path)
+    except OSError:
+        print ("Creation of the directory %s failed" % path)
+    else:
+        print ("Successfully created the directory %s " % path)
+    
+    # initialize constants
     cell_size = 0.03
     sight_val = int(255/(C.MAX_SIGHT - C.MIN_SIGHT + 1))
     speed_val = int(255/(C.MAX_VEL - C.MIN_VEL + 1))
     print('sight_val: ' + str(sight_val) + ' speed_val:' + str(speed_val))
     print(str(C.MAX_SIZE), ' ', str(C.MAX_SIGHT), ' ', str(C.MAX_VEL))
+
+    # iterate and create the icons
     for st in range(0, C.MAX_SIGHT+1):
         for spd in range(0, C.MAX_VEL+1):
             for sz in range(0, C.MAX_SIZE+1):
