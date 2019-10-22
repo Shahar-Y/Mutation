@@ -24,3 +24,14 @@ class CFeatures:
     FOOD = auto()
     MU_RATE = auto()
     HEALTH = auto()
+
+
+def int_to_step(n):
+    if n == 0:
+        return Step.RIGHT
+    elif n == 1:
+        return Step.LEFT
+    elif n == 2:       
+        return Step.UP
+    elif n == 3:
+        return Step.DOWN

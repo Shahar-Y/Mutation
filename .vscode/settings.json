@@ -1,7 +1,8 @@
 {
     "python.pythonPath": "/usr/bin/python3",
+    "python.envFile": "${workspaceFolder}/.env",
     "python.linting.pylintArgs": [
-        "--extension-pkg-whitelist=pygame"
+        "--extension-pkg-whitelist=cv2,pygame"
     ],
     "python.linting.pylintEnabled": true,
     "python.linting.enabled": true
