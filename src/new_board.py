@@ -5,7 +5,7 @@ import pygame
 from enums import Step, int_to_step
 import new_constants as C
 
-ALGEA = pygame.image.load(os.path.join(os.getcwd(), 'src/newUI/images/small_food.png'))
+ALGEA = pygame.image.load(os.path.join(os.getcwd(), 'src/images/small_food.png'))
 
 def distance(x1, y1, x2, y2):
     return math.hypot(x1 - x2, y1 - y2)

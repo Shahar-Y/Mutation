@@ -12,7 +12,7 @@ def create_db():
             for sz in range(0, C.MAX_SIZE+1):
                 # get the original image
                 print('_'+str(st)+'_'+str(spd)+'_'+str(sz))
-                image = cv2.imread("src/newUI/images/original_cell.png")
+                image = cv2.imread("src/images/original_cell.png")
                 overlay = image.copy()
                 output = image.copy()
 
