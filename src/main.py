@@ -1,8 +1,8 @@
 import os
 import random
 import pygame
-import new_constants as C
-from new_board import Board, Cell
+import constants as C
+from board import Board, Cell
 # from new_db import resize_food, create_db
 
 

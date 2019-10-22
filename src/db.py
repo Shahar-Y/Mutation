@@ -1,6 +1,6 @@
-import cv2
-import new_constants as C
 import os
+import cv2
+import constants as C
 
 def create_db():
     # create the icons directory
