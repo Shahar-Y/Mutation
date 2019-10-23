@@ -13,7 +13,7 @@ def create_db():
         print ("Successfully created the directory %s " % path)
     
     # initialize constants
-    cell_size = 0.03
+    cell_size = 10
     sight_val = int(255/(C.MAX_SIGHT - C.MIN_SIGHT + 1))
     speed_val = int(255/(C.MAX_VEL - C.MIN_VEL + 1))
     print('sight_val: ' + str(sight_val) + ' speed_val:' + str(speed_val))
@@ -46,7 +46,7 @@ def create_db():
                 b, g, r = cv2.split(src)
                 rgba = [b,g,r, alpha]
                 dst = cv2.merge(rgba, 4)
-                dst = cv2.resize(dst, (0, 0), fx=cell_size+sz/150, fy=cell_size+sz/150)
+                dst = cv2.resize(dst, (int(cell_size+2*sz), int(cell_size+2*sz)), interpolation=cv2.INTER_CUBIC)
                 cv2.imwrite(icon_name, dst)
                 cv2.waitKey(0)
                 cv2.destroyAllWindows()
